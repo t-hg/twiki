@@ -13,12 +13,13 @@ public class App extends JFrame {
     setSize(1280, 720);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLayout(new BorderLayout());
-    add(
+    var splitPane = 
       new JSplitPane(
-        JSplitPane.HORIZONTAL_SPLIT, 
+        JSplitPane.HORIZONTAL_SPLIT, true,
         new JScrollPane(new FileTree(config)), 
-        new JScrollPane(new Editor())), 
-      BorderLayout.CENTER);
+        new JScrollPane(new Editor()));
+    splitPane.setDividerLocation(200);
+    add(splitPane, BorderLayout.CENTER);
     setVisible(true);
   }
 }

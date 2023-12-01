@@ -29,6 +29,8 @@ public class FileTree extends JTree {
             node = child;
           }
         });
+      expandRow(0);
+      setRootVisible(false);
     } catch (IOException exc) {
       throw new RuntimeException(exc);
     }
