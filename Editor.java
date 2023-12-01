@@ -15,6 +15,8 @@ public class Editor extends JTextPane {
   private static KeyStroke CTRL_5 = KeyStroke.getKeyStroke(KeyEvent.VK_5, KeyEvent.CTRL_DOWN_MASK);
   private static KeyStroke CTRL_6 = KeyStroke.getKeyStroke(KeyEvent.VK_6, KeyEvent.CTRL_DOWN_MASK);
   private static KeyStroke CTRL_B = KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK);
+  private static KeyStroke CTRL_I = KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.CTRL_DOWN_MASK);
+  private static KeyStroke CTRL_U = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
   private static KeyStroke CTRL_S = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
   private static KeyStroke CTRL_SHIFT_C = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK);
 
@@ -23,6 +25,8 @@ public class Editor extends JTextPane {
     editorKit.setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
     setEditorKit(editorKit);
     registerKeyboardAction(new HTMLEditorKit.BoldAction(), CTRL_B, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(new HTMLEditorKit.ItalicAction(), CTRL_I, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(new HTMLEditorKit.UnderlineAction(), CTRL_U, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.save(), CTRL_S, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.toParagraph(), CTRL_0, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.toHeading(1), CTRL_1, JComponent.WHEN_FOCUSED);
