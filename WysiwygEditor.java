@@ -4,6 +4,8 @@ import java.awt.event.*;
 import java.io.*;
 import java.nio.*;
 import java.nio.file.*;
+import java.util.stream.*;
+import java.util.concurrent.*;
 import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
@@ -37,11 +39,35 @@ public class WysiwygEditor extends JTextPane {
 
   public void onFileSelected(String name) {
     var path = Paths.get(Config.notebook(), name);
+
+    var processBuilder = 
+      new ProcessBuilder(
+          Config.pandoc(), 
+          "-f", "markdown", 
+          "-t", "html", 
+          path.toString());
+
+    Process process;
     try {
-      setText(Files.readString(path));
+      process = processBuilder.start();
     } catch (IOException exc) {
       throw new RuntimeException(exc);
     }
+
+    SwingUtilities.invokeLater(() -> {
+      try {
+        process.waitFor();
+      } catch (InterruptedException exc) {
+        Thread.currentThread().interrupt();
+        throw new RuntimeException(exc);
+      }
+
+      if (process.exitValue() != 0) {
+        throw new RuntimeException(process.errorReader().lines().collect(Collectors.joining()));
+      } 
+      
+      setText(process.inputReader().lines().collect(Collectors.joining()));
+    });
   }
 
   private ActionListener save() {
