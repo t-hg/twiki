@@ -1,4 +1,5 @@
 
+import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
@@ -18,7 +19,9 @@ public class Editor extends JTextPane {
   private static KeyStroke CTRL_SHIFT_C = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK);
 
   public Editor() {
-    setEditorKit(new HTMLEditorKit());
+    var editorKit = new HTMLEditorKit();
+    editorKit.setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
+    setEditorKit(editorKit);
     registerKeyboardAction(new HTMLEditorKit.BoldAction(), CTRL_B, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.save(), CTRL_S, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.toParagraph(), CTRL_0, JComponent.WHEN_FOCUSED);
