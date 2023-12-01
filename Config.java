@@ -25,4 +25,8 @@ public class Config {
   public static String notebook() {
     return properties.getProperty("notebook");
   }
+
+  public static String pandoc() {
+    return properties.getProperty("pandoc");
+  }
 }
