@@ -47,6 +47,10 @@ public class Editor extends JTextPane {
     registerKeyboardAction(this.insertCodeBlock(), CTRL_SHIFT_C, JComponent.WHEN_FOCUSED);
   }
 
+  public void onFileSelected(String name) {
+    System.out.println("Editor: file selelected: "+ name);
+  }
+
   private ActionListener save() {
     return event -> System.out.println(getText());
   }

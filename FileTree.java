@@ -1,20 +1,22 @@
-import javax.swing.*;
-import javax.swing.tree.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
 
 public class FileTree extends JTree {
-  private Config config;
 
-  public FileTree(Config config) {
+  private List<Consumer<String>> selectionListeners = new ArrayList<>();
+
+  public FileTree() {
+    var root = new DefaultMutableTreeNode("root");
+    var model = new DefaultTreeModel(root);
+    setModel(model);
     try {
-      this.config = config;
-      var root = new DefaultMutableTreeNode("root");
-      var model = new DefaultTreeModel(root);
-      setModel(model);
       Files
-        .list(Paths.get(config.notebook))
+        .list(Paths.get(Config.notebook()))
         .sorted()
         .map(Path::getFileName) 
         .map(Path::toString)
@@ -29,11 +31,12 @@ public class FileTree extends JTree {
             node = child;
           }
         });
-      expandRow(0);
-      setRootVisible(false);
     } catch (IOException exc) {
       throw new RuntimeException(exc);
     }
+    expandRow(0);
+    setRootVisible(false);
+    addTreeSelectionListener(this::onSelected);
   }
 
   private DefaultMutableTreeNode getChild(DefaultMutableTreeNode node, Object userObject) {
@@ -45,5 +48,22 @@ public class FileTree extends JTree {
       }
     }
     return null;
+  }
+
+  public void addSelectionListener(Consumer<String> listener) {
+    selectionListeners.add(listener);
+  }
+
+  private void onSelected(TreeSelectionEvent event) {
+    var names = new ArrayList<String>();
+    for(var part : event.getPath().getPath()) {
+      var name = part.toString();
+      if ("root".equals(name)) {
+        continue;
+      }
+      names.add(name);
+    }
+    var filename = String.join(".", names);
+    selectionListeners.forEach(listener -> listener.accept(filename));
   }
 }
