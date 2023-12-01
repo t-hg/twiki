@@ -5,6 +5,7 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
+import javax.swing.undo.*;
 
 public class Editor extends JTextPane {
   private static KeyStroke CTRL_0 = KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_DOWN_MASK);
@@ -18,16 +19,24 @@ public class Editor extends JTextPane {
   private static KeyStroke CTRL_I = KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.CTRL_DOWN_MASK);
   private static KeyStroke CTRL_U = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
   private static KeyStroke CTRL_S = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
+  private static KeyStroke CTRL_Z = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
+  private static KeyStroke CTRL_Y = KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK);
   private static KeyStroke CTRL_SHIFT_C = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK);
 
   public Editor() {
     var editorKit = new HTMLEditorKit();
     editorKit.setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
     setEditorKit(editorKit);
+
+    var undoManager = new UndoManager();
+    getDocument().addUndoableEditListener(undoManager);
+
     registerKeyboardAction(new HTMLEditorKit.BoldAction(), CTRL_B, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(new HTMLEditorKit.ItalicAction(), CTRL_I, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(new HTMLEditorKit.UnderlineAction(), CTRL_U, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.save(), CTRL_S, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(this.undo(undoManager), CTRL_Z, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(this.redo(undoManager), CTRL_Y, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.toParagraph(), CTRL_0, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.toHeading(1), CTRL_1, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.toHeading(2), CTRL_2, JComponent.WHEN_FOCUSED);
@@ -40,6 +49,26 @@ public class Editor extends JTextPane {
 
   private ActionListener save() {
     return event -> System.out.println(getText());
+  }
+
+  private ActionListener undo(UndoManager undoManager) {
+    return event -> {
+      try {
+        undoManager.undo();
+      } catch (CannotUndoException exc) {
+        throw new RuntimeException(exc);
+      }
+    };
+  }
+  
+  private ActionListener redo(UndoManager undoManager) {
+    return event -> {
+      try {
+        undoManager.redo();
+      } catch (CannotRedoException exc) {
+        throw new RuntimeException(exc);
+      }
+    };
   }
 
   private ActionListener toHeading(int level) {
