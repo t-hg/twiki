@@ -2,6 +2,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.*;
+import java.nio.file.*;
 import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
@@ -34,7 +36,12 @@ public class WysiwygEditor extends JTextPane {
   }
 
   public void onFileSelected(String name) {
-    System.out.println("Editor: file selelected: "+ name);
+    var path = Paths.get(Config.notebook(), name);
+    try {
+      setText(Files.readString(path));
+    } catch (IOException exc) {
+      throw new RuntimeException(exc);
+    }
   }
 
   private ActionListener save() {
