@@ -12,8 +12,7 @@ import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
 public class WysiwygEditor extends JTextPane {
-
-  private String name;
+  private String filename;
 
   public WysiwygEditor() {
     var editorKit = new HTMLEditorKit();
@@ -27,6 +26,7 @@ public class WysiwygEditor extends JTextPane {
     registerKeyboardAction(new HTMLEditorKit.ItalicAction(), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(new HTMLEditorKit.UnderlineAction(), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.save(), KeyStrokes.CTRL_S, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(this.refresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.undo(undoManager), KeyStrokes.CTRL_Z, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.redo(undoManager), KeyStrokes.CTRL_Y, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
@@ -40,61 +40,25 @@ public class WysiwygEditor extends JTextPane {
   }
 
   public void onFileSelected(String name) {
-    try {
-      this.name = name;
-      var path = Paths.get(Config.notebook(), name);
-      var process = 
-        new ProcessBuilder(
-            Config.pandoc(), 
-            "-f", "markdown", 
-            "-t", "html", 
-            path.toString())
-        .start();
-      SwingUtilities.invokeLater(() -> {
-        try {
-          process.waitFor();
-          if (process.exitValue() != 0) {
-            throw new RuntimeException(process.errorReader().lines().collect(Collectors.joining()));
-          } 
-          setText(process.inputReader().lines().collect(Collectors.joining()));
-        } catch (Exception exc) {
-          throw new RuntimeException(exc);
-        }
-      });
-    } catch (Exception exc) {
-      throw new RuntimeException(exc);
-    }
+    filename = name;
+    setText(Pandoc.markdownToHtml(name));
   }
 
   private ActionListener save() {
     return event -> {
-      try {
-        if (this.name == null) {
-          return;
-        }
-        var process = 
-          new ProcessBuilder(
-              Config.pandoc(), 
-              "-f", "html", 
-              "-t", "markdown",
-              "-o", Paths.get(Config.notebook(), this.name).toString())
-          .start();
-        process.outputWriter().write(getText(), 0, getText().length());
-        process.outputWriter().flush();
-        process.outputWriter().close();
-        SwingUtilities.invokeLater(() -> {
-          try {
-            process.waitFor();
-            if (process.exitValue() != 0) {
-              throw new RuntimeException(process.errorReader().lines().collect(Collectors.joining()));
-            } 
-          } catch (Exception exc) {
-            throw new RuntimeException(exc);
-          }
-        });
-      } catch (Exception exc) {
-        throw new RuntimeException(exc);
+      if (filename == null) {
+        return;
       }
+      Pandoc.htmlToMarkdown(filename, getText());
+    };
+  }
+
+  private ActionListener refresh() {
+    return event -> {
+      if (filename == null) {
+        return;
+      }
+      onFileSelected(filename);
     };
   }
 

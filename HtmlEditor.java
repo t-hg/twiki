@@ -8,10 +8,10 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
-public class MarkdownEditor extends JTextPane {
+public class HtmlEditor extends JTextPane {
   private String filename;
 
-  public MarkdownEditor() {
+  public HtmlEditor() {
     setContentType("text/plain");
     setCursor(new Cursor(Cursor.TEXT_CURSOR));
 
@@ -27,8 +27,7 @@ public class MarkdownEditor extends JTextPane {
   public void onFileSelected(String name) {
     try {
       filename = name;
-      var path = Paths.get(Config.notebook(), name);
-      setText(Files.readString(path));
+      setText(Pandoc.markdownToHtml(filename));
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
@@ -36,20 +35,13 @@ public class MarkdownEditor extends JTextPane {
 
   private ActionListener save() {
     return event -> {
-      try {
-        if (filename == null) {
-          return;
-        }
-        var writer = Files.newBufferedWriter(Paths.get(Config.notebook(), filename));
-        writer.write(getText());
-        writer.flush();
-        writer.close();
-      } catch (Exception exc) {
-        throw new RuntimeException(exc);
+      if (filename == null) {
+        return;
       }
+      Pandoc.htmlToMarkdown(filename, getText());
     };
   }
-  
+
   private ActionListener refresh() {
     return event -> {
       if (filename == null) {
