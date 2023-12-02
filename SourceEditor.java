@@ -23,10 +23,10 @@ public class SourceEditor extends JTextPane {
   }
 
   public void onFileSelected(String name) {
-    var path = Paths.get(Config.notebook(), name);
     try {
-     setText(Files.readString(path));
-    } catch (IOException exc) {
+      var path = Paths.get(Config.notebook(), name);
+      setText(Files.readString(path));
+    } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
   }
@@ -39,7 +39,7 @@ public class SourceEditor extends JTextPane {
     return event -> {
       try {
         undoManager.undo();
-      } catch (CannotUndoException exc) {
+      } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
     };
@@ -49,7 +49,7 @@ public class SourceEditor extends JTextPane {
     return event -> {
       try {
         undoManager.redo();
-      } catch (CannotRedoException exc) {
+      } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
     };

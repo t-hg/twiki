@@ -11,10 +11,10 @@ public class FileTree extends JTree {
   private List<Consumer<String>> selectionListeners = new ArrayList<>();
 
   public FileTree() {
-    var root = new DefaultMutableTreeNode("root");
-    var model = new DefaultTreeModel(root);
-    setModel(model);
     try {
+      var root = new DefaultMutableTreeNode("root");
+      var model = new DefaultTreeModel(root);
+      setModel(model);
       Files
         .list(Paths.get(Config.notebook()))
         .sorted()
@@ -31,12 +31,12 @@ public class FileTree extends JTree {
             node = child;
           }
         });
-    } catch (IOException exc) {
+      expandRow(0);
+      setRootVisible(false);
+      addTreeSelectionListener(this::onSelected);
+    } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
-    expandRow(0);
-    setRootVisible(false);
-    addTreeSelectionListener(this::onSelected);
   }
 
   private DefaultMutableTreeNode getChild(DefaultMutableTreeNode node, Object userObject) {

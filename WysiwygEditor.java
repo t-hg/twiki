@@ -38,36 +38,29 @@ public class WysiwygEditor extends JTextPane {
   }
 
   public void onFileSelected(String name) {
-    var path = Paths.get(Config.notebook(), name);
-
-    var processBuilder = 
-      new ProcessBuilder(
-          Config.pandoc(), 
-          "-f", "markdown", 
-          "-t", "html", 
-          path.toString());
-
-    Process process;
     try {
-      process = processBuilder.start();
-    } catch (IOException exc) {
+      var path = Paths.get(Config.notebook(), name);
+      var process = 
+        new ProcessBuilder(
+            Config.pandoc(), 
+            "-f", "markdown", 
+            "-t", "html", 
+            path.toString())
+        .start();
+      SwingUtilities.invokeLater(() -> {
+        try {
+          process.waitFor();
+          if (process.exitValue() != 0) {
+            throw new RuntimeException(process.errorReader().lines().collect(Collectors.joining()));
+          } 
+          setText(process.inputReader().lines().collect(Collectors.joining()));
+        } catch (Exception exc) {
+          throw new RuntimeException(exc);
+        }
+      });
+    } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
-
-    SwingUtilities.invokeLater(() -> {
-      try {
-        process.waitFor();
-      } catch (InterruptedException exc) {
-        Thread.currentThread().interrupt();
-        throw new RuntimeException(exc);
-      }
-
-      if (process.exitValue() != 0) {
-        throw new RuntimeException(process.errorReader().lines().collect(Collectors.joining()));
-      } 
-      
-      setText(process.inputReader().lines().collect(Collectors.joining()));
-    });
   }
 
   private ActionListener save() {
@@ -78,7 +71,7 @@ public class WysiwygEditor extends JTextPane {
     return event -> {
       try {
         undoManager.undo();
-      } catch (CannotUndoException exc) {
+      } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
     };
@@ -88,7 +81,7 @@ public class WysiwygEditor extends JTextPane {
     return event -> {
       try {
         undoManager.redo();
-      } catch (CannotRedoException exc) {
+      } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
     };
@@ -112,7 +105,7 @@ public class WysiwygEditor extends JTextPane {
         var length = element.getEndOffset() - offset;
         var tag = startTag + document.getText(offset, length) + endTag;
         document.setOuterHTML(element, tag);
-      } catch (BadLocationException | IOException exc) {
+      } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
     };

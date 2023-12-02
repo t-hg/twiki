@@ -17,7 +17,7 @@ public class Config {
       };
       var configFile = Paths.get(configHome.toString(), "twiki.properties");
       properties.load(new FileInputStream(configFile.toFile()));
-    } catch (IOException exc) {
+    } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
   }
