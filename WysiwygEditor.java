@@ -13,6 +13,8 @@ import javax.swing.undo.*;
 
 public class WysiwygEditor extends JTextPane {
 
+  private String name;
+
   public WysiwygEditor() {
     var editorKit = new HTMLEditorKit();
     editorKit.setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
@@ -39,6 +41,7 @@ public class WysiwygEditor extends JTextPane {
 
   public void onFileSelected(String name) {
     try {
+      this.name = name;
       var path = Paths.get(Config.notebook(), name);
       var process = 
         new ProcessBuilder(
@@ -64,7 +67,35 @@ public class WysiwygEditor extends JTextPane {
   }
 
   private ActionListener save() {
-    return event -> System.out.println(getText());
+    return event -> {
+      try {
+        if (this.name == null) {
+          return;
+        }
+        var process = 
+          new ProcessBuilder(
+              Config.pandoc(), 
+              "-f", "html", 
+              "-t", "markdown",
+              "-o", Paths.get(Config.notebook(), this.name).toString())
+          .start();
+        process.outputWriter().write(getText(), 0, getText().length());
+        process.outputWriter().flush();
+        process.outputWriter().close();
+        SwingUtilities.invokeLater(() -> {
+          try {
+            process.waitFor();
+            if (process.exitValue() != 0) {
+              throw new RuntimeException(process.errorReader().lines().collect(Collectors.joining()));
+            } 
+          } catch (Exception exc) {
+            throw new RuntimeException(exc);
+          }
+        });
+      } catch (Exception exc) {
+        throw new RuntimeException(exc);
+      }
+    };
   }
 
   private ActionListener undo(UndoManager undoManager) {
