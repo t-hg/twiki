@@ -13,19 +13,14 @@ public class App extends JFrame {
     setSize(1280, 720);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLayout(new BorderLayout());
-    var wysiwygEditor = new WysiwygEditor();
-    var markdownEditor = new MarkdownEditor();
+    var fileTabs = new FileTabs();
     var fileTree = new FileTree();
-    fileTree.addSelectionListener(wysiwygEditor::onFileSelected);
-    fileTree.addSelectionListener(markdownEditor::onFileSelected);
-    var tabs = new JTabbedPane();
-    tabs.add("Rendered", wysiwygEditor);
-    tabs.add("Markdown", markdownEditor);
+    fileTree.addSelectionListener(fileTabs::onFileSelected);
     var splitPane = 
       new JSplitPane(
         JSplitPane.HORIZONTAL_SPLIT, true,
         new JScrollPane(fileTree), 
-        tabs);
+        fileTabs);
     splitPane.setDividerLocation(200);
     add(splitPane, BorderLayout.CENTER);
     setVisible(true);
