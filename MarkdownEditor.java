@@ -1,4 +1,3 @@
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -9,8 +8,8 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
-public class SourceEditor extends JTextPane {
-  public SourceEditor() {
+public class MarkdownEditor extends JTextPane {
+  public MarkdownEditor() {
     setContentType("text/plain");
     setCursor(new Cursor(Cursor.TEXT_CURSOR));
 
