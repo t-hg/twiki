@@ -23,7 +23,7 @@ public class Pandoc {
             process
               .errorReader()
               .lines()
-              .collect(Collectors.joining()));
+              .collect(Collectors.joining(System.lineSeparator())));
       } 
     } catch (Exception exc) {
       throw new RuntimeException(exc);
@@ -45,11 +45,11 @@ public class Pandoc {
         throw new RuntimeException(
             process.errorReader()
                    .lines()
-                   .collect(Collectors.joining()));
+                   .collect(Collectors.joining(System.lineSeparator())));
       } 
       return process.inputReader()
-                    .lines()
-                    .collect(Collectors.joining());
+                   .lines()
+                   .collect(Collectors.joining(System.lineSeparator()));
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }

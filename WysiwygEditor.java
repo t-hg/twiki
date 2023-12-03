@@ -60,7 +60,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
   }
 
   private ActionListener toCode() {
-    return event -> toTag("<pre><code>", "</code><pre>");
+    return event -> toTag("<pre><code>", "</code></pre>");
   }
 
   private void toTag(String startTag, String endTag) {
