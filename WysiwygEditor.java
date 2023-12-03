@@ -67,10 +67,20 @@ public class WysiwygEditor extends JTextPane implements Editor {
     try {
       var document = (HTMLDocument) getDocument();
       var element = document.getParagraphElement(getCaretPosition());
+      var elementText = document.getText(element.getStartOffset(), element.getEndOffset() - element.getStartOffset()); 
       var parent = element.getParentElement();
-      var text = document.getText(element.getStartOffset(), element.getEndOffset() - element.getStartOffset());
-      var toReplace = "pre".equals(parent.getName()) ? parent : element;
-      document.setOuterHTML(toReplace, startTag + text + endTag);
+      var parentText = document.getText(parent.getStartOffset(), parent.getEndOffset() - parent.getStartOffset()); 
+    
+      if ("pre".equals(parent.getName())) {
+        if ("".equals(elementText.strip())) {
+          document.insertAfterEnd(parent, startTag + endTag);
+          setCaretPosition(getCaretPosition() + 1);
+        } else {
+          document.setOuterHTML(parent, startTag + parentText + endTag);
+        }
+      } else {
+        document.setOuterHTML(element, startTag + elementText + endTag);
+      }
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
