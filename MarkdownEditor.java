@@ -8,7 +8,7 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
-public class MarkdownEditor extends JTextPane {
+public class MarkdownEditor extends JTextPane implements Editor {
   private String filename;
 
   public MarkdownEditor() {

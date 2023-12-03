@@ -8,7 +8,7 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
-public class HtmlEditor extends JTextPane {
+public class HtmlEditor extends JTextPane implements Editor {
   private String filename;
 
   public HtmlEditor() {

@@ -12,7 +12,7 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
-public class WysiwygEditor extends JTextPane {
+public class WysiwygEditor extends JTextPane implements Editor {
   private String filename;
   private Map<String, Action> actionMap = new HashMap<>();
 
