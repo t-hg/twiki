@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.nio.*;
 import java.nio.file.*;
+import java.util.*;
 import java.util.stream.*;
 import java.util.concurrent.*;
 import javax.swing.*;
@@ -13,35 +14,66 @@ import javax.swing.undo.*;
 
 public class WysiwygEditor extends JTextPane {
   private String filename;
+  private Map<String, Action> actionMap = new HashMap<>();
 
   public WysiwygEditor() {
     var editorKit = new HTMLEditorKit();
     editorKit.setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
     setEditorKit(editorKit);
+    
+    for (Action action: editorKit.getActions()) {
+      actionMap.put("" + action.getValue(Action.NAME), action);
+    }
+    //System.out.println(actionMap.keySet().stream().sorted().collect(Collectors.joining("\n")));
 
     var undoManager = new UndoManager();
     getDocument().addUndoableEditListener(undoManager);
 
-    registerKeyboardAction(new HTMLEditorKit.BoldAction(), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(new HTMLEditorKit.ItalicAction(), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(new HTMLEditorKit.UnderlineAction(), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.save(), KeyStrokes.CTRL_S, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.refresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.undo(undoManager), KeyStrokes.CTRL_Z, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.redo(undoManager), KeyStrokes.CTRL_Y, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.toHeading(3), KeyStrokes.CTRL_3, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.toHeading(4), KeyStrokes.CTRL_4, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.toHeading(5), KeyStrokes.CTRL_5, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.toHeading(6), KeyStrokes.CTRL_6, JComponent.WHEN_FOCUSED);
-    registerKeyboardAction(this.insertCodeBlock(), KeyStrokes.CTRL_SHIFT_C, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(actionMap.get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(actionMap.get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(actionMap.get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(toHeading(3), KeyStrokes.CTRL_3, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(toHeading(4), KeyStrokes.CTRL_4, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(toHeading(5), KeyStrokes.CTRL_5, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(toHeading(6), KeyStrokes.CTRL_6, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(toCode(), KeyStrokes.CTRL_SHIFT_C, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(save(), KeyStrokes.CTRL_S, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(refresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(undo(undoManager), KeyStrokes.CTRL_Z, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(redo(undoManager), KeyStrokes.CTRL_Y, JComponent.WHEN_FOCUSED);
   }
 
   public void onFileSelected(String name) {
     filename = name;
     setText(Pandoc.markdownToHtml(name));
+  }
+
+  private ActionListener toParagraph() {
+    return event -> toTag("<p>", "</p>");
+  }
+
+  private ActionListener toHeading(int level) {
+    return event -> toTag("<h" + level + ">", "</h" + level + ">");
+  }
+
+  private ActionListener toCode() {
+    return event -> toTag("<pre><code>", "</code><pre>");
+  }
+
+  private void toTag(String startTag, String endTag) {
+    try {
+      var document = (HTMLDocument) getDocument();
+      var element = document.getParagraphElement(getCaretPosition());
+      var parent = element.getParentElement();
+      var text = document.getText(element.getStartOffset(), element.getEndOffset() - element.getStartOffset());
+      var toReplace = "pre".equals(parent.getName()) ? parent : element;
+      document.setOuterHTML(toReplace, startTag + text + endTag);
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
+    }
   }
 
   private ActionListener save() {
@@ -80,34 +112,5 @@ public class WysiwygEditor extends JTextPane {
         throw new RuntimeException(exc);
       }
     };
-  }
-
-  private ActionListener toHeading(int level) {
-    return toTag("<h" + level + ">", "</h" + level + "/>");
-  }
-
-  private ActionListener toParagraph() {
-    return toTag("<p style=\"margin-top:0;\">", "</p>");
-  }
-
-  private ActionListener toTag(String startTag, String endTag) {
-    return event -> {
-      try {
-        var document = (HTMLDocument) getDocument();
-        var pos = getCaretPosition();
-        var element = document.getParagraphElement(pos);
-        var offset = element.getStartOffset();
-        var length = element.getEndOffset() - offset;
-        var tag = startTag + document.getText(offset, length) + endTag;
-        document.setOuterHTML(element, tag);
-      } catch (Exception exc) {
-        throw new RuntimeException(exc);
-      }
-    };
-  }
-
-  private ActionListener insertCodeBlock() {
-    var html = "<pre></pre>";
-    return new HTMLEditorKit.InsertHTMLTextAction("pre", html, HTML.Tag.BODY, HTML.Tag.PRE);
   }
 }
