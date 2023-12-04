@@ -44,3 +44,13 @@ a {
   color: blue;
   cursor: pointer;
 }
+
+pre {
+  background-color: #ddd;  
+  font-family: monospace;
+}
+
+code {
+  background-color: #ddd;  
+  font-family: monospace;
+}
