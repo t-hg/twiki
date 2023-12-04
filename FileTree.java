@@ -1,3 +1,4 @@
+import java.awt.event.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
@@ -33,7 +34,7 @@ public class FileTree extends JTree {
         });
       expandRow(0);
       setRootVisible(false);
-      addTreeSelectionListener(this::onSelected);
+      addTreeSelectionListener(onSelected());
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
@@ -54,16 +55,18 @@ public class FileTree extends JTree {
     selectionListeners.add(listener);
   }
 
-  private void onSelected(TreeSelectionEvent event) {
-    var names = new ArrayList<String>();
-    for(var part : event.getPath().getPath()) {
-      var name = part.toString();
-      if ("root".equals(name)) {
-        continue;
+  private TreeSelectionListener onSelected() {
+    return event -> {
+      var names = new ArrayList<String>();
+      for(var part : event.getPath().getPath()) {
+        var name = part.toString();
+        if ("root".equals(name)) {
+          continue;
+        }
+        names.add(name);
       }
-      names.add(name);
-    }
-    var filename = String.join(".", names);
-    selectionListeners.forEach(listener -> listener.accept(filename));
+      var filename = String.join(".", names);
+      selectionListeners.forEach(listener -> listener.accept(filename));
+    };
   }
 }
