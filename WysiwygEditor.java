@@ -23,7 +23,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       editorKit.setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
 
       var stylesheet = new StyleSheet();
-      stylesheet.loadRules(new InputStreamReader(getClass().getResourceAsStream("style.css")), null);
+      stylesheet.loadRules(new InputStreamReader(getClass().getResourceAsStream(Config.stylesheet())), null);
       editorKit.setStyleSheet(stylesheet);
 
       setEditorKit(editorKit);
@@ -36,6 +36,10 @@ public class WysiwygEditor extends JTextPane implements Editor {
       var undoManager = new UndoManager();
       getDocument().addUndoableEditListener(undoManager);
 
+
+      addHyperlinkListener(System.out::println);
+      setEditable(false);
+
       registerKeyboardAction(actionMap.get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(actionMap.get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(actionMap.get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
@@ -46,6 +50,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(toHeading(4), KeyStrokes.CTRL_4, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(5), KeyStrokes.CTRL_5, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(6), KeyStrokes.CTRL_6, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(toggleEditable(), KeyStrokes.CTRL_E, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toCode(), KeyStrokes.CTRL_SHIFT_C, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(save(), KeyStrokes.CTRL_S, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(refresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
@@ -130,6 +135,16 @@ public class WysiwygEditor extends JTextPane implements Editor {
         undoManager.redo();
       } catch (Exception exc) {
         throw new RuntimeException(exc);
+      }
+    };
+  }
+
+  private ActionListener toggleEditable() {
+    return event -> {
+      if(isEditable()) {
+        setEditable(false);
+      } else {
+        setEditable(true);
       }
     };
   }
