@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.stream.*;
 import java.util.concurrent.*;
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
@@ -36,8 +37,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       var undoManager = new UndoManager();
       getDocument().addUndoableEditListener(undoManager);
 
-
-      addHyperlinkListener(System.out::println);
+      addHyperlinkListener(onHyperlinkClicked());
       setEditable(false);
 
       registerKeyboardAction(actionMap.get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
@@ -146,6 +146,12 @@ public class WysiwygEditor extends JTextPane implements Editor {
       } else {
         setEditable(true);
       }
+    };
+  }
+
+  private HyperlinkListener onHyperlinkClicked() {
+    return event -> {
+      throw new RuntimeException("not implemented yet");
     };
   }
 }

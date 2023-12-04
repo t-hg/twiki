@@ -1,5 +1,6 @@
 import java.awt.*;
 import javax.swing.*;
+import java.io.*;
 
 public class App extends JFrame {
   public static void main(String[] args) throws Exception {
@@ -24,5 +25,24 @@ public class App extends JFrame {
     splitPane.setDividerLocation(200);
     add(splitPane, BorderLayout.CENTER);
     setVisible(true);
+
+    Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+      public void uncaughtException(Thread t, Throwable e) {
+        e.printStackTrace();
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        e.printStackTrace(printWriter); 
+        var textarea = new JTextArea();
+        textarea.setText(stringWriter.toString());
+        var scrollPane = new JScrollPane(textarea);
+        var dialog = new JDialog();
+        dialog.setTitle("Uncaught Exception");
+        dialog.setLayout(new BorderLayout());
+        dialog.add(scrollPane, BorderLayout.CENTER);
+        dialog.setModal(true);
+        dialog.pack();
+        dialog.setVisible(true);
+      }
+    });
   }
 }
