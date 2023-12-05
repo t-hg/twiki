@@ -116,7 +116,6 @@ public class FileTree extends JTree {
         if (lastComponent.toString().equals(part)) {
           expandPath(treePath);
           setSelectionPath(treePath);
-          // TODO slelect new file
         }
       }
     }
@@ -130,7 +129,7 @@ public class FileTree extends JTree {
 
   class NewDialog extends JDialog {
     public NewDialog() {
-      var filename = getFileName(getSelectionPath());
+      var filename = getSelectionPath() != null ? getFileName(getSelectionPath()) : "";
       var textField = new JTextField(filename);
       textField.addActionListener(addNewFile());
       setTitle("New");
