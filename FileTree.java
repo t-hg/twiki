@@ -29,7 +29,6 @@ public class FileTree extends JTree {
     try {
       var model = (DefaultTreeModel) getModel();
       var root = new DefaultMutableTreeNode("root");
-      var expanded = getExpandedDescendants(new TreePath(model.getRoot()));
       Files
         .list(Paths.get(Config.notebook()))
         .sorted()
@@ -47,11 +46,6 @@ public class FileTree extends JTree {
           }
         });
       model.setRoot(root);
-      setRootVisible(true);
-      while (expanded.hasMoreElements()) {
-        var path = expanded.nextElement();
-        setExpandedState(path, true);
-      }
       model.reload();
     } catch (IOException exc) {
       throw new RuntimeException(exc);
