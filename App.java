@@ -24,6 +24,7 @@ public class App extends JFrame {
         fileTabs);
     splitPane.setDividerLocation(200);
     add(splitPane, BorderLayout.CENTER);
+    setLocationRelativeTo(null);
     setVisible(true);
 
     Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -41,6 +42,7 @@ public class App extends JFrame {
         dialog.add(scrollPane, BorderLayout.CENTER);
         dialog.setModal(true);
         dialog.pack();
+        dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
       }
     });
