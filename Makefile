@@ -7,7 +7,7 @@ clean:
 
 .PHONY: compile
 compile: clean
-	@javac App.java
+	@javac -Xlint:unchecked App.java
 
 .PHONY: run
 run: compile

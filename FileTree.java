@@ -102,7 +102,22 @@ public class FileTree extends JTree {
   }
 
   private void select(String filename) {
-    throw new RuntimeException("not implemented");
+    var parts = filename.split("\\.");
+    var stack = new Stack<String>();
+    for (int i = parts.length - 1; i >= 0; i--) {
+      stack.push(parts[i]);
+    }
+    while(!stack.isEmpty()) {
+      var part = stack.pop();
+      for (int i = 0; i < getRowCount(); i++) {
+        var treePath = getPathForRow(i);
+        var nodes = treePath.getPath();
+        var lastComponent = nodes[nodes.length - 1];
+        if (lastComponent.toString().equals(part)) {
+          expandPath(treePath);
+        }
+      }
+    }
   }
 
   private ActionListener showNewDialog() {
@@ -116,7 +131,6 @@ public class FileTree extends JTree {
       var filename = getFileName(getSelectionPath());
       var textField = new JTextField(filename);
       textField.addActionListener(addNewFile());
-
       setTitle("New");
       setModal(true);
       add(textField); 
@@ -137,7 +151,7 @@ public class FileTree extends JTree {
           }
           Files.createFile(path);
           refresh();
-          //select(filename);
+          select(filename);
           setVisible(false);
           dispose();
         } catch (Exception exc) {
