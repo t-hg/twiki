@@ -115,6 +115,8 @@ public class FileTree extends JTree {
         var lastComponent = nodes[nodes.length - 1];
         if (lastComponent.toString().equals(part)) {
           expandPath(treePath);
+          setSelectionPath(treePath);
+          // TODO slelect new file
         }
       }
     }
