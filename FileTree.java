@@ -13,10 +13,23 @@ public class FileTree extends JTree {
   private java.util.List<Consumer<String>> selectionListeners = new ArrayList<>();
 
   public FileTree() {
+    refresh();
+    expandRow(0);
+    setRootVisible(false);
+    addTreeSelectionListener(onSelected());
+    registerKeyboardAction(showNewDialog(), KeyStrokes.CTRL_N, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(triggerRefresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
+  }
+
+  private ActionListener triggerRefresh() {
+    return event -> refresh();
+  }
+
+  private void refresh() {
     try {
+      var model = (DefaultTreeModel) getModel();
       var root = new DefaultMutableTreeNode("root");
-      var model = new DefaultTreeModel(root);
-      setModel(model);
+      var expanded = getExpandedDescendants(new TreePath(model.getRoot()));
       Files
         .list(Paths.get(Config.notebook()))
         .sorted()
@@ -33,11 +46,14 @@ public class FileTree extends JTree {
             node = child;
           }
         });
-      expandRow(0);
-      setRootVisible(false);
-      addTreeSelectionListener(onSelected());
-      registerKeyboardAction(newFile(), KeyStrokes.CTRL_N, JComponent.WHEN_FOCUSED);
-    } catch (Exception exc) {
+      model.setRoot(root);
+      setRootVisible(true);
+      while (expanded.hasMoreElements()) {
+        var path = expanded.nextElement();
+        setExpandedState(path, true);
+      }
+      model.reload();
+    } catch (IOException exc) {
       throw new RuntimeException(exc);
     }
   }
@@ -57,22 +73,31 @@ public class FileTree extends JTree {
     selectionListeners.add(listener);
   }
 
+  private String getFileName(TreePath path) {
+    var names = new ArrayList<String>();
+    for(var part : path.getPath()) {
+      var name = part.toString();
+      if ("root".equals(name)) {
+        continue;
+      }
+      names.add(name);
+    }
+    return String.join(".", names);
+  }
+
   private TreeSelectionListener onSelected() {
     return event -> {
-      var names = new ArrayList<String>();
-      for(var part : event.getPath().getPath()) {
-        var name = part.toString();
-        if ("root".equals(name)) {
-          continue;
-        }
-        names.add(name);
-      }
-      var filename = String.join(".", names);
+      var path = event.getPath();
+      var filename = getFileName(path);
       selectionListeners.forEach(listener -> listener.accept(filename));
     };
   }
 
-  private ActionListener newFile() {
+  private void select(String filename) {
+    throw new RuntimeException("not implemented");
+  }
+
+  private ActionListener showNewDialog() {
     return event -> {
       new NewDialog();
     };
@@ -80,8 +105,10 @@ public class FileTree extends JTree {
 
   class NewDialog extends JDialog {
     public NewDialog() {
-      var textField = new JTextField();
-      textField.addActionListener(System.out::println);
+      var filename = getFileName(getSelectionPath());
+      var textField = new JTextField(filename);
+      textField.addActionListener(addNewFile());
+
       setTitle("New");
       setModal(true);
       add(textField); 
@@ -89,6 +116,26 @@ public class FileTree extends JTree {
       setSize(300, 70);
       setLocationRelativeTo(null);
       setVisible(true);
+    }
+
+    private ActionListener addNewFile() {
+      return event -> {
+        try {
+          var filename = ((JTextField) event.getSource()).getText();
+          var path = Paths.get(Config.notebook(), filename);
+          while (Files.exists(path)) {
+            filename = filename + "_copy";
+            path = Paths.get(Config.notebook(), filename);
+          }
+          Files.createFile(path);
+          refresh();
+          //select(filename);
+          setVisible(false);
+          dispose();
+        } catch (Exception exc) {
+          throw new RuntimeException(exc);
+        }
+      };
     }
   }
 }
