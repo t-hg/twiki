@@ -28,6 +28,9 @@ public class MarkdownEditor extends JTextPane implements Editor {
     try {
       filename = name;
       var path = Paths.get(Config.notebook(), name);
+      if (!Files.exists(path)) {
+        return;
+      }
       setText(Files.readString(path));
     } catch (Exception exc) {
       throw new RuntimeException(exc);

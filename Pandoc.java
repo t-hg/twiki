@@ -33,6 +33,9 @@ public class Pandoc {
   public static String markdownToHtml(String filename) {
     try {
       var path = Paths.get(Config.notebook(), filename);
+      if (!Files.exists(path)) {
+        return "";
+      }
       var process = 
         new ProcessBuilder(
             Config.pandoc(), 
