@@ -15,13 +15,18 @@ public class App extends JFrame {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLayout(new BorderLayout());
     var fileTabs = new FileTabs();
+    var toolBar = new ToolBar();
+    var editorPanel = new JPanel();
+    editorPanel.setLayout(new BorderLayout());
+    editorPanel.add(fileTabs, BorderLayout.CENTER);
+    editorPanel.add(toolBar, BorderLayout.SOUTH);
     var fileTree = new FileTree();
     fileTree.addSelectionListener(fileTabs::onFileSelected);
     var splitPane = 
       new JSplitPane(
         JSplitPane.HORIZONTAL_SPLIT, true,
         new JScrollPane(fileTree), 
-        fileTabs);
+        editorPanel);
     splitPane.setDividerLocation(200);
     add(splitPane, BorderLayout.CENTER);
     setLocationRelativeTo(null);
