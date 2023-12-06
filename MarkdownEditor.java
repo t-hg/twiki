@@ -25,7 +25,7 @@ public class MarkdownEditor extends JTextPane implements Editor {
   }
   
   public void onSearch(String searchString) {
-    System.out.println(getClass().getName() + ": search: " + searchString);
+    Editor.onSearch(this, searchString);
   }
 
   public void onFileSelected(String name) {
