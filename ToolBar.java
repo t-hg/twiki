@@ -10,6 +10,7 @@ public class ToolBar extends JToolBar {
     add(Box.createHorizontalGlue());
     add(searchField);
     setFloatable(false);
+    addMouseListener(hideBar());
   }
 
   private FocusAdapter selectAll() {
@@ -17,6 +18,16 @@ public class ToolBar extends JToolBar {
       public void focusGained(FocusEvent event) {
         var textField = (JTextField) event.getSource();
         textField.select(0, textField.getText().length());
+      }
+    };
+  }
+
+  private MouseAdapter hideBar() {
+    return new MouseAdapter() {
+      public void mouseReleased(MouseEvent event) {
+        if (SwingUtilities.isMiddleMouseButton(event)) {
+          setVisible(false);
+        }
       }
     };
   }
