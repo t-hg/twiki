@@ -50,16 +50,8 @@ public class FileTree extends JTree {
       model.reload();
       while(expanded.hasMoreElements()) {
         var treePath = expanded.nextElement();
-        for (var node : treePath.getPath()) {
-          for (int i = 0; i < getRowCount(); i++) {
-            treePath = getPathForRow(i);
-            var nodes = treePath.getPath();
-            var lastComponent = nodes[nodes.length - 1];
-            if (lastComponent.toString().equals(node.toString())) {
-              expandPath(treePath);
-            }
-          }
-        }
+        var filename = getFileName(treePath);
+        expandFileName(filename, false);
       }
     } catch (IOException exc) {
       throw new RuntimeException(exc);
@@ -101,21 +93,25 @@ public class FileTree extends JTree {
     };
   }
 
-  private void select(String filename) {
+  private void expandFileName(String filename, boolean select) {
     var parts = filename.split("\\.");
     var stack = new Stack<String>();
     for (int i = parts.length - 1; i >= 0; i--) {
       stack.push(parts[i]);
     }
+    var row = 0;
     while(!stack.isEmpty()) {
       var part = stack.pop();
-      for (int i = 0; i < getRowCount(); i++) {
-        var treePath = getPathForRow(i);
+      for (; row < getRowCount(); row++) {
+        var treePath = getPathForRow(row);
         var nodes = treePath.getPath();
         var lastComponent = nodes[nodes.length - 1];
         if (lastComponent.toString().equals(part)) {
           expandPath(treePath);
-          setSelectionPath(treePath);
+          if (select) {
+            setSelectionPath(treePath);
+          }
+          break;
         }
       }
     }
@@ -152,7 +148,7 @@ public class FileTree extends JTree {
           }
           Files.createFile(path);
           refresh();
-          select(filename);
+          expandFileName(filename, true);
           setVisible(false);
           dispose();
         } catch (Exception exc) {
