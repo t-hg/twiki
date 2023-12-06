@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 
@@ -51,5 +52,14 @@ public class App extends JFrame {
         dialog.setVisible(true);
       }
     });
+    
+    fileTabs.registerKeyboardAction(showToolBar(toolBar), KeyStrokes.CTRL_F, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+  }
+
+  private ActionListener showToolBar(ToolBar toolBar) {
+    return event -> {
+      toolBar.setVisible(true);
+      toolBar.focusSearch();
+    };
   }
 }

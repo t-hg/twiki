@@ -3,8 +3,10 @@ import javax.swing.event.*;
 import javax.swing.*;
 
 public class ToolBar extends JToolBar {
+  private JTextField searchField;
+
   public ToolBar() {
-    var searchField = new JTextField("Search...");
+    searchField = new JTextField("Search...");
     searchField.addFocusListener(selectAll());
     searchField.setColumns(12);
     add(Box.createHorizontalGlue());
@@ -12,6 +14,10 @@ public class ToolBar extends JToolBar {
     setFloatable(false);
     addMouseListener(hideBar());
     setVisible(false);
+  }
+
+  public void focusSearch() {
+    searchField.grabFocus();
   }
 
   private FocusListener selectAll() {
