@@ -61,6 +61,10 @@ public class WysiwygEditor extends JTextPane implements Editor {
     }
   }
 
+  public void onSearch(String searchString) {
+    System.out.println(getClass().getName() + ": search: " + searchString);
+  }
+
   public void onFileSelected(String name) {
     filename = name;
     setText(Pandoc.markdownToHtml(name));

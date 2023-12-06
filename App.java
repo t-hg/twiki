@@ -17,6 +17,7 @@ public class App extends JFrame {
     setLayout(new BorderLayout());
     var fileTabs = new FileTabs();
     var toolBar = new ToolBar();
+    toolBar.addSearchListener(fileTabs::onSearch);
     var editorPanel = new JPanel();
     editorPanel.setLayout(new BorderLayout());
     editorPanel.add(fileTabs, BorderLayout.CENTER);

@@ -10,26 +10,37 @@ public class FileTabs extends JTabbedPane {
     }
   }
 
+  private String filename;
   private List<Tab> tabs = new ArrayList<>();
 
   public FileTabs() {
     addMouseListener(removeTab());
   }
 
-  public void onFileSelected(String name) {
+  public void onSearch(String searchString) {
     Tab tab = tabs.stream()
-                  .filter(it -> it.filename().equals(name))
+                  .filter(it -> it.filename().equals(filename))
                   .findFirst()
                   .orElse(null);
+    if (tab != null) {
+      tab.editorTabs().onSearch(searchString);
+    }
+  }
 
+  public void onFileSelected(String name) {
+    filename = name;
+    Tab tab = tabs.stream()
+                  .filter(it -> it.filename().equals(filename))
+                  .findFirst()
+                  .orElse(null);
     if(tab != null) {
-      tab.editorTabs().onFileSelected(name);
+      tab.editorTabs().onFileSelected(filename);
       setSelectedComponent(tab.editorTabs()); 
     } else {
       var editorTabs = new EditorTabs();
-      tab = new Tab(name, editorTabs);
+      tab = new Tab(filename, editorTabs);
       tabs.add(tab);
-      editorTabs.onFileSelected(name);
+      editorTabs.onFileSelected(filename);
       add(tab.getTitle(), editorTabs);
       setSelectedComponent(editorTabs); 
     }

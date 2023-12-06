@@ -16,6 +16,12 @@ public class EditorTabs extends JTabbedPane {
     addChangeListener(reload());
   }
 
+  public void onSearch(String searchString) {
+    wysiwygEditor.onSearch(searchString);
+    htmlEditor.onSearch(searchString);
+    markdownEditor.onSearch(searchString);
+  }
+
   public void onFileSelected(String name) {
     this.filename = name;
     wysiwygEditor.onFileSelected(name);

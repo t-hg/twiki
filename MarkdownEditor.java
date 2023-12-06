@@ -23,6 +23,10 @@ public class MarkdownEditor extends JTextPane implements Editor {
     registerKeyboardAction(this.undo(undoManager), KeyStrokes.CTRL_Z, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.redo(undoManager), KeyStrokes.CTRL_Y, JComponent.WHEN_FOCUSED);
   }
+  
+  public void onSearch(String searchString) {
+    System.out.println(getClass().getName() + ": search: " + searchString);
+  }
 
   public void onFileSelected(String name) {
     try {
