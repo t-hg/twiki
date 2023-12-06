@@ -19,6 +19,7 @@ public class FileTree extends JTree {
     addTreeSelectionListener(onSelected());
     registerKeyboardAction(showNewDialog(), KeyStrokes.CTRL_N, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(showDeleteDialog(), KeyStrokes.DEL, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(showRenameDialog(), KeyStrokes.F2, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(triggerRefresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
   }
 
@@ -133,6 +134,16 @@ public class FileTree extends JTree {
       new DeleteDialog(filename);
     };
   }
+  
+  private ActionListener showRenameDialog() {
+    return event -> {
+      var filename = getSelectionPath() != null ? getFileName(getSelectionPath()) : "";
+      if (filename == null || "".equals(filename.strip())) {
+        return;
+      }
+      new RenameDialog(filename);
+    };
+  }
 
   class NewDialog extends JDialog {
     public NewDialog() {
@@ -157,10 +168,10 @@ public class FileTree extends JTree {
             path = Paths.get(Config.notebook(), filename);
           }
           Files.createFile(path);
-          refresh();
-          expandFileName(filename, true);
           setVisible(false);
           dispose();
+          refresh();
+          expandFileName(filename, true);
         } catch (Exception exc) {
           throw new RuntimeException(exc);
         }
@@ -188,6 +199,43 @@ public class FileTree extends JTree {
         try {
           var path = Paths.get(Config.notebook(), filename);
           Files.deleteIfExists(path);
+          setVisible(false);
+          dispose();
+          refresh();
+          expandFileName(filename, true);
+        } catch (Exception exc) {
+          throw new RuntimeException(exc);
+        }
+      };
+    }
+  }
+
+  class RenameDialog extends JDialog {
+    private String filename;
+
+    public RenameDialog(String filename) {
+      this.filename = filename;
+      setTitle("Rename " + filename);
+      var textField = new JTextField(filename);
+      textField.addActionListener(renameFile());
+      setModal(true);
+      add(textField); 
+      setSize(300, 70);
+      setLocationRelativeTo(null);
+      setVisible(true);
+    }
+
+    private ActionListener renameFile() {
+      return event -> {
+        try {
+          var source = Paths.get(Config.notebook(), filename);
+          var newFileName = ((JTextField) event.getSource()).getText();
+          var target = Paths.get(Config.notebook(), newFileName);
+          while (Files.exists(target)) {
+            newFileName = newFileName + "_copy";
+            target = Paths.get(Config.notebook(), newFileName);
+          }
+          Files.move(source, target);
           setVisible(false);
           dispose();
           refresh();
