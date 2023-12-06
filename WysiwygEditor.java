@@ -38,7 +38,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       getDocument().addUndoableEditListener(undoManager);
 
       addHyperlinkListener(onHyperlinkClicked());
-      setEditable(false);
+      setEditable(true);
 
       registerKeyboardAction(actionMap.get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(actionMap.get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);

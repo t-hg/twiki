@@ -18,6 +18,7 @@ public class FileTree extends JTree {
     setRootVisible(false);
     addTreeSelectionListener(onSelected());
     registerKeyboardAction(showNewDialog(), KeyStrokes.CTRL_N, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(showDeleteDialog(), KeyStrokes.DEL, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(triggerRefresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
   }
 
@@ -123,6 +124,16 @@ public class FileTree extends JTree {
     };
   }
 
+  private ActionListener showDeleteDialog() {
+    return event -> {
+      var filename = getSelectionPath() != null ? getFileName(getSelectionPath()) : "";
+      if (filename == null || "".equals(filename.strip())) {
+        return;
+      }
+      new DeleteDialog(filename);
+    };
+  }
+
   class NewDialog extends JDialog {
     public NewDialog() {
       var filename = getSelectionPath() != null ? getFileName(getSelectionPath()) : "";
@@ -131,7 +142,6 @@ public class FileTree extends JTree {
       setTitle("New");
       setModal(true);
       add(textField); 
-      pack();
       setSize(300, 70);
       setLocationRelativeTo(null);
       setVisible(true);
@@ -151,6 +161,37 @@ public class FileTree extends JTree {
           expandFileName(filename, true);
           setVisible(false);
           dispose();
+        } catch (Exception exc) {
+          throw new RuntimeException(exc);
+        }
+      };
+    }
+  }
+  
+  class DeleteDialog extends JDialog {
+    private String filename;
+
+    public DeleteDialog(String filename) {
+      this.filename = filename;
+      setTitle("Delete " + filename);
+      var button = new JButton("Delete");
+      button.addActionListener(deleteFile());
+      setModal(true);
+      add(button); 
+      setSize(300, 70);
+      setLocationRelativeTo(null);
+      setVisible(true);
+    }
+
+    private ActionListener deleteFile() {
+      return event -> {
+        try {
+          var path = Paths.get(Config.notebook(), filename);
+          Files.deleteIfExists(path);
+          setVisible(false);
+          dispose();
+          refresh();
+          expandFileName(filename, true);
         } catch (Exception exc) {
           throw new RuntimeException(exc);
         }
