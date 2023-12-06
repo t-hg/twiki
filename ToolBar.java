@@ -11,9 +11,10 @@ public class ToolBar extends JToolBar {
     add(searchField);
     setFloatable(false);
     addMouseListener(hideBar());
+    setVisible(false);
   }
 
-  private FocusAdapter selectAll() {
+  private FocusListener selectAll() {
     return new FocusAdapter() {
       public void focusGained(FocusEvent event) {
         var textField = (JTextField) event.getSource();
@@ -22,7 +23,7 @@ public class ToolBar extends JToolBar {
     };
   }
 
-  private MouseAdapter hideBar() {
+  private MouseListener hideBar() {
     return new MouseAdapter() {
       public void mouseReleased(MouseEvent event) {
         if (SwingUtilities.isMiddleMouseButton(event)) {

@@ -13,7 +13,7 @@ public class FileTabs extends JTabbedPane {
   private List<Tab> tabs = new ArrayList<>();
 
   public FileTabs() {
-    addMouseListener(onMouseClick());
+    addMouseListener(removeTab());
   }
 
   public void onFileSelected(String name) {
@@ -35,7 +35,7 @@ public class FileTabs extends JTabbedPane {
     }
   }
 
-  private MouseListener onMouseClick() {
+  private MouseListener removeTab() {
     return new MouseAdapter() {
       public void mouseReleased(MouseEvent event) {
         if (SwingUtilities.isMiddleMouseButton(event)) {
