@@ -14,10 +14,16 @@ public class EditorTabs extends JTabbedPane {
     super(JTabbedPane.BOTTOM);
     setBorder(new EmptyBorder(2, 0, 4, 0));
     setModel(new EditorTabsModel());
-    add("Rendered", wysiwygEditor);
-    add("HTML", htmlEditor);
-    add("Markdown", markdownEditor);
+    add("Rendered", scroll(wysiwygEditor));
+    add("HTML", scroll(htmlEditor));
+    add("Markdown", scroll(markdownEditor));
     addChangeListener(reload());
+  }
+
+  private JScrollPane scroll(JComponent component) {
+    var scrollPane = new JScrollPane(component);
+    scrollPane.setViewportBorder(null);
+    return scrollPane;
   }
 
   public void onSearch(String searchString) {
@@ -41,7 +47,9 @@ public class EditorTabs extends JTabbedPane {
 
   private ChangeListener reload() {
     return event -> {
-      ((Editor) getSelectedComponent()).onFileSelected(filename);
+      var scrollPane = (JScrollPane) getSelectedComponent();
+      var editor = (Editor) scrollPane.getViewport().getView();
+      editor.onFileSelected(filename);
     };
   }
 
