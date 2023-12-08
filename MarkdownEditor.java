@@ -10,6 +10,7 @@ import javax.swing.undo.*;
 
 public class MarkdownEditor extends JTextPane implements Editor {
   private String filename;
+  private UnsavedChangesTracker unsavedChangesTracker;
 
   public MarkdownEditor() {
     setContentType("text/plain");
@@ -17,6 +18,9 @@ public class MarkdownEditor extends JTextPane implements Editor {
 
     var undoManager = new UndoManager();
     getDocument().addUndoableEditListener(undoManager);
+
+    unsavedChangesTracker = new UnsavedChangesTracker();
+    getDocument().addDocumentListener(unsavedChangesTracker);
 
     registerKeyboardAction(this.save(), KeyStrokes.CTRL_S, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.refresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
@@ -30,15 +34,24 @@ public class MarkdownEditor extends JTextPane implements Editor {
 
   public void onFileSelected(String name) {
     try {
+      if (hasUnsavedChanges()) {
+        MessageDialogs.unsavedChanges(this);
+        return;
+      }
       filename = name;
       var path = Paths.get(Config.notebook(), name);
       if (!Files.exists(path)) {
         return;
       }
       setText(Files.readString(path));
+      unsavedChangesTracker.reset();
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
+  }
+
+  public boolean hasUnsavedChanges() {
+    return unsavedChangesTracker.hasUnsavedChanges();
   }
 
   private ActionListener save() {
@@ -51,6 +64,7 @@ public class MarkdownEditor extends JTextPane implements Editor {
         writer.write(getText());
         writer.flush();
         writer.close();
+        unsavedChangesTracker.reset();
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }

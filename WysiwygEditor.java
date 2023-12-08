@@ -16,6 +16,7 @@ import javax.swing.undo.*;
 
 public class WysiwygEditor extends JTextPane implements Editor {
   private String filename;
+  private UnsavedChangesTracker unsavedChangesTracker;
   private Map<String, Action> actionMap = new HashMap<>();
 
   public WysiwygEditor() {
@@ -36,9 +37,11 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
       var undoManager = new UndoManager();
       getDocument().addUndoableEditListener(undoManager);
+      
+      unsavedChangesTracker = new UnsavedChangesTracker();
+      getDocument().addDocumentListener(unsavedChangesTracker);
 
       addHyperlinkListener(onHyperlinkClicked());
-      setEditable(true);
 
       registerKeyboardAction(actionMap.get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(actionMap.get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
@@ -66,8 +69,17 @@ public class WysiwygEditor extends JTextPane implements Editor {
   }
 
   public void onFileSelected(String name) {
+    if (hasUnsavedChanges()) {
+      MessageDialogs.unsavedChanges(this);
+      return;
+    }
     filename = name;
     setText(Pandoc.markdownToHtml(name));
+    unsavedChangesTracker.reset();
+  }
+
+  public boolean hasUnsavedChanges() {
+    return unsavedChangesTracker.hasUnsavedChanges();
   }
 
   private ActionListener toParagraph() {
@@ -111,6 +123,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
         return;
       }
       Pandoc.htmlToMarkdown(filename, getText());
+      unsavedChangesTracker.reset();
     };
   }
 

@@ -1,3 +1,4 @@
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -10,6 +11,7 @@ public class EditorTabs extends JTabbedPane {
 
   public EditorTabs() {
     super(JTabbedPane.BOTTOM);
+    setModel(new EditorTabsModel());
     add("Rendered", wysiwygEditor);
     add("HTML", htmlEditor);
     add("Markdown", markdownEditor);
@@ -29,10 +31,26 @@ public class EditorTabs extends JTabbedPane {
     markdownEditor.onFileSelected(name);
   }
 
+  public boolean hasUnsavedChanges() {
+    return wysiwygEditor.hasUnsavedChanges() 
+        || htmlEditor.hasUnsavedChanges()
+        || markdownEditor.hasUnsavedChanges();
+  }
+
   private ChangeListener reload() {
     return event -> {
       ((Editor) getSelectedComponent()).onFileSelected(filename);
     };
+  }
+
+  class EditorTabsModel extends DefaultSingleSelectionModel {
+    public void setSelectedIndex(int index) {
+      if (hasUnsavedChanges()) {
+        MessageDialogs.unsavedChanges(EditorTabs.this);
+        return;
+      }
+      super.setSelectedIndex(index);
+    }
   }
 }
 

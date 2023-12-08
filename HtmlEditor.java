@@ -10,6 +10,7 @@ import javax.swing.undo.*;
 
 public class HtmlEditor extends JTextPane implements Editor {
   private String filename;
+  private UnsavedChangesTracker unsavedChangesTracker;
 
   public HtmlEditor() {
     setContentType("text/plain");
@@ -17,6 +18,9 @@ public class HtmlEditor extends JTextPane implements Editor {
 
     var undoManager = new UndoManager();
     getDocument().addUndoableEditListener(undoManager);
+
+    unsavedChangesTracker = new UnsavedChangesTracker();
+    getDocument().addDocumentListener(unsavedChangesTracker);
 
     registerKeyboardAction(this.save(), KeyStrokes.CTRL_S, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(this.refresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
@@ -30,11 +34,20 @@ public class HtmlEditor extends JTextPane implements Editor {
 
   public void onFileSelected(String name) {
     try {
+      if (hasUnsavedChanges()) {
+        MessageDialogs.unsavedChanges(this);
+        return;
+      }
       filename = name;
       setText(Pandoc.markdownToHtml(filename));
+      unsavedChangesTracker.reset();
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
+  }
+
+  public boolean hasUnsavedChanges() {
+    return unsavedChangesTracker.hasUnsavedChanges();
   }
 
   private ActionListener save() {
@@ -43,6 +56,7 @@ public class HtmlEditor extends JTextPane implements Editor {
         return;
       }
       Pandoc.htmlToMarkdown(filename, getText());
+      unsavedChangesTracker.reset();
     };
   }
 

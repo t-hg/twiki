@@ -51,6 +51,11 @@ public class FileTabs extends JTabbedPane {
       public void mouseReleased(MouseEvent event) {
         if (SwingUtilities.isMiddleMouseButton(event)) {
           var index = getSelectedIndex();
+          var tab = tabs.get(index);
+          if (tab.editorTabs.hasUnsavedChanges()) {
+            MessageDialogs.unsavedChanges(FileTabs.this);
+            return;
+          }
           tabs.remove(index);
           remove(index);
         }

@@ -5,6 +5,7 @@ import javax.swing.text.*;
 public interface Editor {
   void onSearch(String searchString);
   void onFileSelected(String name);
+  boolean hasUnsavedChanges();
 
   static void onSearch(JTextPane textPane, String searchString) {
     try {
