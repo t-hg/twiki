@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.lang.ref.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.*;
@@ -11,7 +10,7 @@ import javax.swing.tree.*;
 
 public class FileTree extends JTree {
 
-  private java.util.List<WeakReference<Consumer<String>>> selectionListeners = new ArrayList<>();
+  private java.util.List<Consumer<String>> selectionListeners = new ArrayList<>();
 
   public FileTree() {
     refresh();
@@ -73,7 +72,7 @@ public class FileTree extends JTree {
   }
 
   public void addSelectionListener(Consumer<String> listener) {
-    selectionListeners.add(new WeakReference<>(listener));
+    selectionListeners.add(listener);
   }
 
   private String getFileName(TreePath path) {
@@ -92,7 +91,7 @@ public class FileTree extends JTree {
     return event -> {
       var path = event.getPath();
       var filename = getFileName(path);
-      selectionListeners.forEach(listener -> listener.get().accept(filename));
+      selectionListeners.forEach(listener -> listener.accept(filename));
     };
   }
 

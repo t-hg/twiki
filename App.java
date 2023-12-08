@@ -5,6 +5,10 @@ import javax.swing.border.*;
 import java.io.*;
 
 public class App extends JFrame {
+  private FileTabs fileTabs;
+  private ToolBar toolBar;
+  private GlobalSearchDialog globalSearchDialog;
+
   public static void main(String[] args) throws Exception {
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     SwingUtilities.invokeLater(App::new);
@@ -12,12 +16,13 @@ public class App extends JFrame {
   
   public App() {
     Config.load();
+    fileTabs = new FileTabs();
+    toolBar = new ToolBar();
+    globalSearchDialog = new GlobalSearchDialog();
     setTitle("twiki");
     setSize(1280, 720);
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     setLayout(new BorderLayout());
-    var fileTabs = new FileTabs();
-    var toolBar = new ToolBar();
     toolBar.addSearchListener(fileTabs::onSearch);
     var editorPanel = new JPanel();
     editorPanel.setLayout(new BorderLayout());
@@ -66,18 +71,32 @@ public class App extends JFrame {
       }
     });
    
-    getRootPane().registerKeyboardAction(globalSearch(fileTabs), KeyStrokes.CTRL_SHIFT_F, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-    fileTabs.registerKeyboardAction(showToolBar(toolBar), KeyStrokes.CTRL_F, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    getRootPane().registerKeyboardAction(
+        globalSearch(), 
+        KeyStrokes.CTRL_SHIFT_F, 
+        JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    
+    fileTabs.registerKeyboardAction(
+        showToolBar(), 
+        KeyStrokes.CTRL_F, 
+        JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
   }
 
-  private ActionListener globalSearch(FileTabs fileTabs) {
+  private ActionListener globalSearch() {
     return event -> {
-      var dialog = new GlobalSearchDialog();
-      dialog.addFileSelectionListener(fileTabs::onFileSelected);
+      globalSearchDialog.setVisible(true);
+      globalSearchDialog.grabFocus();
+      globalSearchDialog.addFileSelectionListener(filename -> {
+        var searchString = globalSearchDialog.getSearchString();
+        toolBar.setVisible(true);
+        toolBar.setSearchString(searchString);
+        fileTabs.onFileSelected(filename);
+        fileTabs.onSearch(searchString);
+      });
     };
   }
 
-  private ActionListener showToolBar(ToolBar toolBar) {
+  private ActionListener showToolBar() {
     return event -> {
       toolBar.setVisible(true);
       toolBar.focusSearch();

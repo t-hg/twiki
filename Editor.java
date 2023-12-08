@@ -18,7 +18,12 @@ public interface Editor {
       var document = textPane.getDocument();
       var text = document.getText(0, document.getLength());
       int index = 0;
+      boolean firstOccurence = true;
       while ((index = text.indexOf(searchString, index)) > -1) {
+        if (firstOccurence) {
+          textPane.setCaretPosition(index);
+          firstOccurence = false;
+        }
         highlighter.addHighlight(index, searchString.length() + index, highlightPainter);
         index = index + searchString.length();
       }

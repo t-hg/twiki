@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.ref.*;
 import java.util.*;
 import java.util.function.*;
 import javax.swing.*;
@@ -8,12 +7,13 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 
 public class GlobalSearchDialog extends JDialog { 
+  private JTextField searchField;
   private JTable table;
   private ResultTableModel tableModel;
-  private java.util.List<WeakReference<Consumer<String>>> fileSelectionListeners = new ArrayList<>();
+  private java.util.List<Consumer<String>> fileSelectionListeners = new ArrayList<>();
 
   public GlobalSearchDialog() {
-    var searchField = new JTextField("Search...");
+    searchField = new JTextField("Search...");
     searchField.addFocusListener(selectAll());
     searchField.addActionListener(search());
     setTitle("Search");
@@ -27,12 +27,20 @@ public class GlobalSearchDialog extends JDialog {
     setModal(false);
     setSize(400, 300);
     setLocationRelativeTo(null);
-    setVisible(true);
+    setVisible(false);
+    setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+  }
+
+  public void grabFocus() {
     searchField.grabFocus();
   }
 
+  public String getSearchString() {
+    return searchField.getText();
+  }
+
   public void addFileSelectionListener(Consumer<String> listener) {
-    fileSelectionListeners.add(new WeakReference<>(listener));
+    fileSelectionListeners.add(listener);
   }
 
   private FocusListener selectAll() {
@@ -48,9 +56,7 @@ public class GlobalSearchDialog extends JDialog {
     return event -> {
       var textField = (JTextField) event.getSource();
       var searchString = textField.getText();
-      for(int row = 0; row < tableModel.getRowCount(); row++) {
-        tableModel.removeRow(row);
-      }
+      tableModel.setRowCount(0);
       Ripgrep.search(searchString)
              .stream()
              .forEach(result -> tableModel.addRow(new Object[]{result.filename(), result.count()}));
@@ -65,9 +71,12 @@ public class GlobalSearchDialog extends JDialog {
           return;
         }
         int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+          return;
+        }
         int modelRow = table.convertRowIndexToModel(viewRow);
         var filename = tableModel.getValueAt(modelRow, 0).toString();
-        fileSelectionListeners.forEach(listener -> listener.get().accept(filename));
+        fileSelectionListeners.forEach(listener -> listener.accept(filename));
       }
     };
   }
