@@ -50,7 +50,7 @@ public class FileTree extends JTree {
         });
       model.setRoot(root);
       model.reload();
-      while(expanded.hasMoreElements()) {
+      while(expanded != null && expanded.hasMoreElements()) {
         var treePath = expanded.nextElement();
         var filename = getFileName(treePath);
         expandFileName(filename, false);
