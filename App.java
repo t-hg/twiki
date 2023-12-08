@@ -13,7 +13,7 @@ public class App extends JFrame {
     Config.load();
     setTitle("twiki");
     setSize(1280, 720);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     setLayout(new BorderLayout());
     var fileTabs = new FileTabs();
     var toolBar = new ToolBar();
@@ -33,6 +33,16 @@ public class App extends JFrame {
     add(splitPane, BorderLayout.CENTER);
     setLocationRelativeTo(null);
     setVisible(true);
+
+    addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent event) {
+        if (fileTabs.hasUnsavedChanges()) {
+          MessageDialogs.unsavedChanges(App.this);
+          return;
+        }
+        dispose();
+      }
+    });
 
     Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
       public void uncaughtException(Thread t, Throwable e) {

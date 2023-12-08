@@ -46,6 +46,15 @@ public class FileTabs extends JTabbedPane {
     }
   }
 
+  public boolean hasUnsavedChanges() {
+    for(var tab : tabs) {
+      if (tab.editorTabs.hasUnsavedChanges()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private MouseListener removeTab() {
     return new MouseAdapter() {
       public void mouseReleased(MouseEvent event) {
