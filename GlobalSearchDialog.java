@@ -29,6 +29,7 @@ public class GlobalSearchDialog extends JDialog {
     setLocationRelativeTo(null);
     setVisible(false);
     setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+    getRootPane().registerKeyboardAction(close(), KeyStrokes.ESC, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
   }
 
   public void grabFocus() {
@@ -41,6 +42,12 @@ public class GlobalSearchDialog extends JDialog {
 
   public void addFileSelectionListener(Consumer<String> listener) {
     fileSelectionListeners.add(listener);
+  }
+
+  private ActionListener close() {
+    return event -> {
+      setVisible(false);
+    };
   }
 
   private FocusListener selectAll() {
