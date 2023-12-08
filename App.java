@@ -63,8 +63,15 @@ public class App extends JFrame {
         dialog.setVisible(true);
       }
     });
-    
+   
+    getRootPane().registerKeyboardAction(globalSearch(), KeyStrokes.CTRL_SHIFT_F, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     fileTabs.registerKeyboardAction(showToolBar(toolBar), KeyStrokes.CTRL_F, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+  }
+
+  private ActionListener globalSearch() {
+    return event -> {
+      new GlobalSearchDialog();
+    };
   }
 
   private ActionListener showToolBar(ToolBar toolBar) {
