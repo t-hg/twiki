@@ -42,10 +42,6 @@ public class WysiwygEditor extends JTextPane implements Editor {
       unsavedChangesTracker = new UnsavedChangesTracker();
       getDocument().addDocumentListener(unsavedChangesTracker);
 
-      addHyperlinkListener(onHyperlinkClicked());
-
-      addKeyListener(toggleEditable());
-
       registerKeyboardAction(actionMap.get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(actionMap.get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(actionMap.get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
@@ -154,28 +150,6 @@ public class WysiwygEditor extends JTextPane implements Editor {
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
-    };
-  }
-
-  private KeyListener toggleEditable() {
-    return new KeyAdapter() {
-      public void keyPressed(KeyEvent event) {
-        if (event.getKeyCode() == KeyEvent.VK_CONTROL) {
-          setEditable(false);
-        }
-      }
-
-      public void keyReleased(KeyEvent event) {
-        if (event.getKeyCode() == KeyEvent.VK_CONTROL) {
-          setEditable(true);
-        }
-      }
-    };
-  }
-
-  private HyperlinkListener onHyperlinkClicked() {
-    return event -> {
-      System.out.println("not implemented yet");
     };
   }
 }
