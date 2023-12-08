@@ -1,6 +1,7 @@
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.border.*;
 
 public class FileTabs extends JTabbedPane {
   private record Tab(String filename, EditorTabs editorTabs) {
@@ -14,6 +15,7 @@ public class FileTabs extends JTabbedPane {
   private List<Tab> tabs = new ArrayList<>();
 
   public FileTabs() {
+    setBorder(new EmptyBorder(4, 0, 2, 2));
     addMouseListener(removeTab());
   }
 

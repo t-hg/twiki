@@ -1,5 +1,6 @@
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.*;
 
 public class EditorTabs extends JTabbedPane {
@@ -11,6 +12,7 @@ public class EditorTabs extends JTabbedPane {
 
   public EditorTabs() {
     super(JTabbedPane.BOTTOM);
+    setBorder(new EmptyBorder(2, 0, 4, 0));
     setModel(new EditorTabsModel());
     add("Rendered", wysiwygEditor);
     add("HTML", htmlEditor);
