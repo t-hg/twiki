@@ -1,4 +1,5 @@
 import java.awt.event.*;
+import java.lang.ref.*;
 import java.util.*;
 import java.util.function.*;
 import javax.swing.*;
@@ -6,7 +7,7 @@ import javax.swing.event.*;
 
 public class ToolBar extends JToolBar {
   private JTextField searchField;
-  private List<Consumer<String>> searchListeners = new ArrayList<>();
+  private List<WeakReference<Consumer<String>>> searchListeners = new ArrayList<>();
 
   public ToolBar() {
     searchField = new JTextField("Search...");
@@ -25,14 +26,14 @@ public class ToolBar extends JToolBar {
   }
 
   public void addSearchListener(Consumer<String> searchListener) {
-    searchListeners.add(searchListener);
+    searchListeners.add(new WeakReference<>(searchListener));
   }
 
   private ActionListener search() {
     return event -> {
       var textField = (JTextField) event.getSource();
       var searchString = textField.getText();
-      searchListeners.forEach(listener -> listener.accept(searchString));
+      searchListeners.forEach(listener -> listener.get().accept(searchString));
       textField.select(0, textField.getText().length());
     };
   }

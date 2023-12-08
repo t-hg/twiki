@@ -23,6 +23,10 @@ public class Config {
   public static String pandoc() {
     return properties.getProperty("pandoc");
   }
+  
+  public static String ripgrep() {
+    return properties.getProperty("ripgrep");
+  }
 
   public static String stylesheet() {
     return properties.getProperty("stylesheet");

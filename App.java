@@ -42,6 +42,7 @@ public class App extends JFrame {
           return;
         }
         dispose();
+        System.exit(0);
       }
     });
 
@@ -65,13 +66,14 @@ public class App extends JFrame {
       }
     });
    
-    getRootPane().registerKeyboardAction(globalSearch(), KeyStrokes.CTRL_SHIFT_F, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    getRootPane().registerKeyboardAction(globalSearch(fileTabs), KeyStrokes.CTRL_SHIFT_F, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     fileTabs.registerKeyboardAction(showToolBar(toolBar), KeyStrokes.CTRL_F, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
   }
 
-  private ActionListener globalSearch() {
+  private ActionListener globalSearch(FileTabs fileTabs) {
     return event -> {
-      new GlobalSearchDialog();
+      var dialog = new GlobalSearchDialog();
+      dialog.addFileSelectionListener(fileTabs::onFileSelected);
     };
   }
 
