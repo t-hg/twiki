@@ -71,8 +71,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
   }
 
   public void onFileSelected(String name) {
-    if (hasUnsavedChanges()) {
-      MessageDialogs.unsavedChanges(this);
+    if (hasUnsavedChanges() && MessageDialogs.unsavedChanges(this) != 0) {
       return;
     }
     filename = name;

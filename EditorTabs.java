@@ -55,8 +55,7 @@ public class EditorTabs extends JTabbedPane {
 
   class EditorTabsModel extends DefaultSingleSelectionModel {
     public void setSelectedIndex(int index) {
-      if (hasUnsavedChanges()) {
-        MessageDialogs.unsavedChanges(EditorTabs.this);
+      if (hasUnsavedChanges() && MessageDialogs.unsavedChanges(EditorTabs.this) != 0) {
         return;
       }
       super.setSelectedIndex(index);

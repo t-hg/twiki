@@ -34,8 +34,7 @@ public class HtmlEditor extends JTextPane implements Editor {
 
   public void onFileSelected(String name) {
     try {
-      if (hasUnsavedChanges()) {
-        MessageDialogs.unsavedChanges(this);
+      if (hasUnsavedChanges() && MessageDialogs.unsavedChanges(HtmlEditor.this) != 0) {
         return;
       }
       filename = name;

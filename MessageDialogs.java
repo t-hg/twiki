@@ -3,11 +3,11 @@ import javax.swing.*;
 
 public class MessageDialogs {
   
-  public static void unsavedChanges(Component component) {
-    JOptionPane.showMessageDialog(
+  public static int unsavedChanges(Component component) {
+    return JOptionPane.showConfirmDialog(
         component, 
-        "There are unsaved changes.", 
+        "Discard unsaved changes?", 
         "Unsaved changes", 
-        JOptionPane.WARNING_MESSAGE);
+        JOptionPane.YES_NO_OPTION);
   }
 }

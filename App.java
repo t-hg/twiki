@@ -42,8 +42,7 @@ public class App extends JFrame {
 
     addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent event) {
-        if (fileTabs.hasUnsavedChanges()) {
-          MessageDialogs.unsavedChanges(App.this);
+        if (fileTabs.hasUnsavedChanges() && MessageDialogs.unsavedChanges(App.this) != 0) {
           return;
         }
         dispose();

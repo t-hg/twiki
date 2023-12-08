@@ -66,8 +66,7 @@ public class FileTabs extends JTabbedPane {
             return;
           }
           var tab = tabs.get(index);
-          if (tab.editorTabs.hasUnsavedChanges()) {
-            MessageDialogs.unsavedChanges(FileTabs.this);
+          if (hasUnsavedChanges() && MessageDialogs.unsavedChanges(FileTabs.this) != 0) {
             return;
           }
           tabs.remove(index);
