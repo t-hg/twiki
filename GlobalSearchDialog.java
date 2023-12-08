@@ -7,6 +7,7 @@ public class GlobalSearchDialog extends JDialog {
   public GlobalSearchDialog() {
     var searchField = new JTextField("Search...");
     searchField.addFocusListener(selectAll());
+    searchField.addActionListener(search());
     setTitle("Search");
     setLayout(new BorderLayout());
     add(searchField, BorderLayout.NORTH);
@@ -24,6 +25,14 @@ public class GlobalSearchDialog extends JDialog {
         var textField = (JTextField) event.getSource();
         textField.select(0, textField.getText().length());
       }
+    };
+  }
+
+  private ActionListener search() {
+    return event -> {
+      System.out.println(event);
+      var textField = (JTextField) event.getSource();
+      textField.select(0, textField.getText().length());
     };
   }
 }

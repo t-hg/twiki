@@ -33,6 +33,7 @@ public class ToolBar extends JToolBar {
       var textField = (JTextField) event.getSource();
       var searchString = textField.getText();
       searchListeners.forEach(listener -> listener.accept(searchString));
+      textField.select(0, textField.getText().length());
     };
   }
 
