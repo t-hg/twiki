@@ -1,4 +1,3 @@
-
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
@@ -51,6 +50,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
@@ -85,6 +85,10 @@ public class WysiwygEditor extends JTextPane implements Editor {
     return unsavedChangesTracker.hasUnsavedChanges();
   }
 
+  private void resetCaret() {
+    setCaretPosition(getCaretPosition());
+  }
+
   private ActionListener pasteFromClipboard() {
     return event -> {
       try {
@@ -101,21 +105,35 @@ public class WysiwygEditor extends JTextPane implements Editor {
         if (!Files.exists(imageDirectory)) {
           Files.createDirectory(imageDirectory);
         }
-        var imageFile = Paths.get(imageDirectory.toString(), filename + "_" + System.currentTimeMillis() + ".png");
+        var imageFile = 
+          Paths.get(
+              imageDirectory.toString(), 
+              filename + "_" + System.currentTimeMillis() + ".png");
         ImageIO.write(image, "png", imageFile.toFile());
-        var document = (HTMLDocument) getDocument();
-        var editorKit = (HTMLEditorKit) getEditorKit();
         var imageFileRelative = 
           Paths.get(Config.notebook())
             .toFile()
             .toURI()
             .relativize(imageFile.toFile().toURI())
             .getPath();
-        editorKit.insertHTML(
-            document, getCaretPosition(), 
-            "<img src=\""+imageFileRelative+"\">", 
-            0, 0, 
-            HTML.Tag.IMG);
+        var html = "<p><img src=\""+imageFileRelative+"\"></p>";
+        var document = (HTMLDocument) getDocument();
+        var editorKit = (HTMLEditorKit) getEditorKit();
+        editorKit.insertHTML(document, getCaretPosition(), html, 1, 0, HTML.Tag.P);
+        resetCaret();
+      } catch (Exception exc) {
+        throw new RuntimeException(exc);
+      }
+    };
+  }
+
+  private ActionListener insertBreak() {
+    return event -> {
+      try {
+        var document = (HTMLDocument) getDocument();
+        var editorKit = (HTMLEditorKit) getEditorKit();
+        editorKit.insertHTML(document, getCaretPosition(), "<br>", 0, 0, HTML.Tag.BR);
+        resetCaret();
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
@@ -138,10 +156,15 @@ public class WysiwygEditor extends JTextPane implements Editor {
     try {
       var document = (HTMLDocument) getDocument();
       var element = document.getParagraphElement(getCaretPosition());
-      var elementText = document.getText(element.getStartOffset(), element.getEndOffset() - element.getStartOffset()); 
+      var elementText = 
+        document.getText(
+            element.getStartOffset(), 
+            element.getEndOffset() - element.getStartOffset()); 
       var parent = element.getParentElement();
-      var parentText = document.getText(parent.getStartOffset(), parent.getEndOffset() - parent.getStartOffset()); 
-    
+      var parentText = 
+        document.getText(
+            parent.getStartOffset(), 
+            parent.getEndOffset() - parent.getStartOffset()); 
       if ("pre".equals(parent.getName())) {
         if ("".equals(elementText.strip())) {
           document.insertAfterEnd(parent, startTag + endTag);

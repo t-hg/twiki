@@ -25,4 +25,5 @@ public class KeyStrokes {
   public static KeyStroke DEL = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
   public static KeyStroke ESC = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
   public static KeyStroke F2 = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
+  public static KeyStroke SHIFT_ENTER = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK);
 }

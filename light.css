@@ -40,12 +40,17 @@ h6 {
   margin-bottom: 10px;
 }
 
+p {
+  margin-top: 10px;
+}
+
 a {
   color: blue;
   cursor: pointer;
 }
 
 pre {
+  margin-top: 10px;
   background-color: #ddd;  
   font-family: monospace;
 }
