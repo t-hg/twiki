@@ -120,9 +120,12 @@ public class WysiwygEditor extends JTextPane implements Editor {
             .getPath();
         var html = "<p><img src=\""+imageFileRelative+"\"></p>";
         var document = (HTMLDocument) getDocument();
-        var editorKit = (HTMLEditorKit) getEditorKit();
-        editorKit.insertHTML(document, getCaretPosition(), html, 1, 0, HTML.Tag.P);
-        resetCaret();
+        var element = document.getParagraphElement(getCaretPosition());
+        if (isInCodeBlock()) {
+          element = element.getParentElement();
+        }
+        document.insertAfterEnd(element, html);
+        setCaretPosition(element.getEndOffset() + 1);
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
