@@ -51,7 +51,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toDefault(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(3), KeyStrokes.CTRL_3, JComponent.WHEN_FOCUSED);
@@ -141,9 +141,20 @@ public class WysiwygEditor extends JTextPane implements Editor {
     };
   }
 
+  private boolean isInCodeBlock() {
+    var document = (HTMLDocument) getDocument();
+    var element = document.getParagraphElement(getCaretPosition());
+    var parent = element.getParentElement();
+    var attribute = parent.getAttributes().getAttribute(AttributeSet.NameAttribute);
+    return "pre".equals(attribute.toString());
+  }
+
   private ActionListener toCode() {
     return event -> {
       try {
+        if (isInCodeBlock()) {
+          return;
+        }
         var document = (HTMLDocument) getDocument();
         var editorKit = (HTMLEditorKit) getEditorKit();
         var selectedText = getSelectedText();
@@ -154,9 +165,10 @@ public class WysiwygEditor extends JTextPane implements Editor {
           resetCaret();
         } else {
           // to code block
+          var element = document.getParagraphElement(getCaretPosition());
           var html = "<pre><code></code></pre>";
-          editorKit.insertHTML(document, getCaretPosition(), html, 1, 0, HTML.Tag.PRE);
-          resetCaret();
+          document.insertAfterEnd(element, html);
+          setCaretPosition(element.getEndOffset());
         }
       } catch (Exception exc) {
         throw new RuntimeException(exc);
@@ -164,8 +176,8 @@ public class WysiwygEditor extends JTextPane implements Editor {
     };
   }
 
-  private ActionListener toDefault() {
-    return event -> replaceTag("", "");
+  private ActionListener toParagraph() {
+    return event -> replaceTag("<p>", "</p>");
   }
 
   private ActionListener toHeading(int level) {
