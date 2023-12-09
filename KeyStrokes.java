@@ -16,12 +16,13 @@ public class KeyStrokes {
   public static KeyStroke CTRL_N = KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK);
   public static KeyStroke CTRL_R = KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK);
   public static KeyStroke CTRL_S = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
-  public static KeyStroke CTRL_U = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
-  public static KeyStroke CTRL_Y = KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK);
-  public static KeyStroke CTRL_Z = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
   public static KeyStroke CTRL_SHIFT_C = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK);
   public static KeyStroke CTRL_SHIFT_F = KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK);
-  public static KeyStroke ESC = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+  public static KeyStroke CTRL_U = KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK);
+  public static KeyStroke CTRL_V = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
+  public static KeyStroke CTRL_Y = KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK);
+  public static KeyStroke CTRL_Z = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
   public static KeyStroke DEL = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
+  public static KeyStroke ESC = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
   public static KeyStroke F2 = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
 }

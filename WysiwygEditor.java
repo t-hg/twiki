@@ -29,11 +29,12 @@ public class WysiwygEditor extends JTextPane implements Editor {
       editorKit.setStyleSheet(stylesheet);
 
       setEditorKit(editorKit);
-      System.out.println(
-          Arrays.stream(getActionMap().allKeys())
-            .map(Object::toString)
-            .sorted()
-            .collect(Collectors.joining("\n")));
+
+      //System.out.println(
+      //    Arrays.stream(getActionMap().allKeys())
+      //      .map(Object::toString)
+      //      .sorted()
+      //      .collect(Collectors.joining("\n")));
 
       var undoManager = new UndoManager();
       getDocument().addUndoableEditListener(undoManager);
@@ -44,6 +45,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(getActionMap().get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
@@ -76,6 +78,13 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
   public boolean hasUnsavedChanges() {
     return unsavedChangesTracker.hasUnsavedChanges();
+  }
+
+  private ActionListener pasteFromClipboard() {
+    return event -> {
+      System.out.println("paste");
+      getActionMap().get("paste").actionPerformed(event);
+    };
   }
 
   private ActionListener toParagraph() {
