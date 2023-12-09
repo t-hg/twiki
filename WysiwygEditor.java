@@ -18,7 +18,6 @@ import javax.swing.undo.*;
 public class WysiwygEditor extends JTextPane implements Editor {
   private String filename;
   private UnsavedChangesTracker unsavedChangesTracker;
-  private Map<String, Action> actionMap = new HashMap<>();
 
   public WysiwygEditor() {
     try {
@@ -30,11 +29,11 @@ public class WysiwygEditor extends JTextPane implements Editor {
       editorKit.setStyleSheet(stylesheet);
 
       setEditorKit(editorKit);
-      
-      for (Action action: editorKit.getActions()) {
-        actionMap.put("" + action.getValue(Action.NAME), action);
-      }
-      //System.out.println(actionMap.keySet().stream().sorted().collect(Collectors.joining("\n")));
+      System.out.println(
+          Arrays.stream(getActionMap().allKeys())
+            .map(Object::toString)
+            .sorted()
+            .collect(Collectors.joining("\n")));
 
       var undoManager = new UndoManager();
       getDocument().addUndoableEditListener(undoManager);
@@ -42,9 +41,9 @@ public class WysiwygEditor extends JTextPane implements Editor {
       unsavedChangesTracker = new UnsavedChangesTracker();
       getDocument().addDocumentListener(unsavedChangesTracker);
 
-      registerKeyboardAction(actionMap.get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(actionMap.get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(actionMap.get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(getActionMap().get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
