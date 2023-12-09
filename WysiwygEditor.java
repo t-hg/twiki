@@ -51,6 +51,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(insertParagraph(), KeyStrokes.CTRL_SHIFT_0, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
@@ -176,8 +177,30 @@ public class WysiwygEditor extends JTextPane implements Editor {
     };
   }
 
+  private ActionListener insertParagraph() {
+    return event -> {
+      try {
+        var document = (HTMLDocument) getDocument();
+        var element = document.getParagraphElement(getCaretPosition());
+        if (isInCodeBlock()) {
+          element = element.getParentElement();
+        }
+        var html = "<p></p>";
+        document.insertAfterEnd(element, html);
+        setCaretPosition(element.getEndOffset());
+      } catch (Exception exc) {
+        throw new RuntimeException(exc);
+      }
+    };
+  }
+
   private ActionListener toParagraph() {
-    return event -> replaceTag("<p>", "</p>");
+    return event -> {
+      if (isInCodeBlock()) {
+        return;
+      }
+      replaceTag("<p>", "</p>");
+    };
   }
 
   private ActionListener toHeading(int level) {

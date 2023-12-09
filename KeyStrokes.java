@@ -3,6 +3,7 @@ import javax.swing.*;
 
 public class KeyStrokes {
   public static KeyStroke CTRL_0 = KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_DOWN_MASK);
+  public static KeyStroke CTRL_SHIFT_0 = KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK);
   public static KeyStroke CTRL_1 = KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK);
   public static KeyStroke CTRL_2 = KeyStroke.getKeyStroke(KeyEvent.VK_2, KeyEvent.CTRL_DOWN_MASK);
   public static KeyStroke CTRL_3 = KeyStroke.getKeyStroke(KeyEvent.VK_3, KeyEvent.CTRL_DOWN_MASK);
