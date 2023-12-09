@@ -51,7 +51,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(toDefault(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(3), KeyStrokes.CTRL_3, JComponent.WHEN_FOCUSED);
@@ -97,7 +97,8 @@ public class WysiwygEditor extends JTextPane implements Editor {
           return;
         }
         if(!content.isDataFlavorSupported(DataFlavor.imageFlavor)) {
-          getActionMap().get("paste").actionPerformed(event);
+          var string = (String) content.getTransferData(DataFlavor.stringFlavor);
+          getDocument().insertString(getCaretPosition(), string, null);
           return;
         }
         var image = (BufferedImage) content.getTransferData(DataFlavor.imageFlavor);
@@ -140,19 +141,38 @@ public class WysiwygEditor extends JTextPane implements Editor {
     };
   }
 
-  private ActionListener toParagraph() {
-    return event -> toTag("<p>", "</p>");
+  private ActionListener toCode() {
+    return event -> {
+      try {
+        var document = (HTMLDocument) getDocument();
+        var editorKit = (HTMLEditorKit) getEditorKit();
+        var selectedText = getSelectedText();
+        if (selectedText != null && !selectedText.isBlank()) {
+          document.remove(getSelectionStart(), selectedText.length());
+          var html = "<code>" + selectedText + "</code>";
+          editorKit.insertHTML(document, getCaretPosition(), html, 0, 0, HTML.Tag.CODE);
+          resetCaret();
+        } else {
+          // to code block
+          var html = "<pre><code></code></pre>";
+          editorKit.insertHTML(document, getCaretPosition(), html, 1, 0, HTML.Tag.PRE);
+          resetCaret();
+        }
+      } catch (Exception exc) {
+        throw new RuntimeException(exc);
+      }
+    };
+  }
+
+  private ActionListener toDefault() {
+    return event -> replaceTag("", "");
   }
 
   private ActionListener toHeading(int level) {
-    return event -> toTag("<h" + level + ">", "</h" + level + ">");
+    return event -> replaceTag("<h" + level + ">", "</h" + level + ">");
   }
 
-  private ActionListener toCode() {
-    return event -> toTag("<pre><code>", "</code></pre>");
-  }
-
-  private void toTag(String startTag, String endTag) {
+  private void replaceTag(String startTag, String endTag) {
     try {
       var document = (HTMLDocument) getDocument();
       var element = document.getParagraphElement(getCaretPosition());
@@ -160,21 +180,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
         document.getText(
             element.getStartOffset(), 
             element.getEndOffset() - element.getStartOffset()); 
-      var parent = element.getParentElement();
-      var parentText = 
-        document.getText(
-            parent.getStartOffset(), 
-            parent.getEndOffset() - parent.getStartOffset()); 
-      if ("pre".equals(parent.getName())) {
-        if ("".equals(elementText.strip())) {
-          document.insertAfterEnd(parent, startTag + endTag);
-          setCaretPosition(getCaretPosition() + 1);
-        } else {
-          document.setOuterHTML(parent, startTag + parentText + endTag);
-        }
-      } else {
-        document.setOuterHTML(element, startTag + elementText + endTag);
-      }
+      document.setOuterHTML(element, startTag + elementText + endTag);
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
