@@ -1,6 +1,8 @@
 
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 import java.nio.*;
@@ -8,6 +10,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
 import java.util.concurrent.*;
+import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
@@ -41,6 +44,8 @@ public class WysiwygEditor extends JTextPane implements Editor {
       
       unsavedChangesTracker = new UnsavedChangesTracker();
       getDocument().addDocumentListener(unsavedChangesTracker);
+
+      ((HTMLDocument) getDocument()).setBase(Paths.get(Config.notebook()).toFile().toURI().toURL());
 
       registerKeyboardAction(getActionMap().get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
@@ -82,8 +87,38 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
   private ActionListener pasteFromClipboard() {
     return event -> {
-      System.out.println("paste");
-      getActionMap().get("paste").actionPerformed(event);
+      try {
+        var content = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        if (content == null) {
+          return;
+        }
+        if(!content.isDataFlavorSupported(DataFlavor.imageFlavor)) {
+          getActionMap().get("paste").actionPerformed(event);
+          return;
+        }
+        var image = (BufferedImage) content.getTransferData(DataFlavor.imageFlavor);
+        var imageDirectory = Paths.get(Config.notebook(), "images");
+        if (!Files.exists(imageDirectory)) {
+          Files.createDirectory(imageDirectory);
+        }
+        var imageFile = Paths.get(imageDirectory.toString(), filename + "_" + System.currentTimeMillis() + ".png");
+        ImageIO.write(image, "png", imageFile.toFile());
+        var document = (HTMLDocument) getDocument();
+        var editorKit = (HTMLEditorKit) getEditorKit();
+        var imageFileRelative = 
+          Paths.get(Config.notebook())
+            .toFile()
+            .toURI()
+            .relativize(imageFile.toFile().toURI())
+            .getPath();
+        editorKit.insertHTML(
+            document, getCaretPosition(), 
+            "<img src=\""+imageFileRelative+"\">", 
+            0, 0, 
+            HTML.Tag.IMG);
+      } catch (Exception exc) {
+        throw new RuntimeException(exc);
+      }
     };
   }
 

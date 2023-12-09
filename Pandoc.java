@@ -50,9 +50,11 @@ public class Pandoc {
                    .lines()
                    .collect(Collectors.joining(System.lineSeparator())));
       } 
-      return process.inputReader()
-                   .lines()
-                   .collect(Collectors.joining(System.lineSeparator()));
+      var html = 
+        process.inputReader()
+               .lines()
+               .collect(Collectors.joining(System.lineSeparator()));
+      return html;
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
