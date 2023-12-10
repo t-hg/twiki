@@ -58,6 +58,7 @@ public class App extends JFrame {
         e.printStackTrace(printWriter); 
         var textarea = new JTextArea();
         textarea.setText(stringWriter.toString());
+        textarea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
         var scrollPane = new JScrollPane(textarea);
         var dialog = new JDialog();
         dialog.setTitle("Uncaught Exception");
