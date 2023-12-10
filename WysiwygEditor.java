@@ -52,6 +52,9 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertParagraph(), KeyStrokes.ENTER, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(insertCodeBlock(), KeyStrokes.CTRL_SHIFT_C, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(insertInfoBlock(), KeyStrokes.CTRL_SHIFT_I, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(insertWarnBlock(), KeyStrokes.CTRL_SHIFT_W, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
@@ -59,11 +62,11 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(toHeading(4), KeyStrokes.CTRL_4, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(5), KeyStrokes.CTRL_5, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(6), KeyStrokes.CTRL_6, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toCode(), KeyStrokes.CTRL_SHIFT_C, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(save(), KeyStrokes.CTRL_S, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(refresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(undo(undoManager), KeyStrokes.CTRL_Z, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(redo(undoManager), KeyStrokes.CTRL_Y, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(debug(), KeyStrokes.F12, JComponent.WHEN_FOCUSED);
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
@@ -121,7 +124,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
         var html = "<p><img src=\""+imageFileRelative+"\"></p>";
         var document = (HTMLDocument) getDocument();
         var element = document.getParagraphElement(getCaretPosition());
-        if (isInCodeBlock()) {
+        if (isInBlock()) {
           element = element.getParentElement();
         }
         document.insertAfterEnd(element, html);
@@ -145,20 +148,29 @@ public class WysiwygEditor extends JTextPane implements Editor {
     };
   }
 
-  private boolean isInCodeBlock() {
+  private ActionListener insertInfoBlock() {
+    return event -> {
+      insertBlock("<div class=\"info\"><p></p></div>");
+    };
+  }
+  
+  private ActionListener insertWarnBlock() {
+    return event -> {
+      insertBlock("<div class=\"warn\"><p></p></div>");
+    };
+  }
+
+  private boolean isInBlock() {
     var document = (HTMLDocument) getDocument();
     var element = document.getParagraphElement(getCaretPosition());
     var parent = element.getParentElement();
     var attribute = parent.getAttributes().getAttribute(AttributeSet.NameAttribute);
-    return "pre".equals(attribute.toString());
+    return "pre".equals(attribute.toString()) || "div".equals(attribute.toString());
   }
 
-  private ActionListener toCode() {
+  private ActionListener insertCodeBlock() {
     return event -> {
       try {
-        if (isInCodeBlock()) {
-          return;
-        }
         var document = (HTMLDocument) getDocument();
         var editorKit = (HTMLEditorKit) getEditorKit();
         var selectedText = getSelectedText();
@@ -168,11 +180,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
           editorKit.insertHTML(document, getCaretPosition(), html, 0, 0, HTML.Tag.CODE);
           resetCaret();
         } else {
-          // to code block
-          var element = document.getParagraphElement(getCaretPosition());
-          var html = "<pre><code></code></pre>";
-          document.insertAfterEnd(element, html);
-          setCaretPosition(element.getEndOffset());
+          insertBlock("<pre><code></code></pre>");
         }
       } catch (Exception exc) {
         throw new RuntimeException(exc);
@@ -182,24 +190,27 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
   private ActionListener insertParagraph() {
     return event -> {
-      try {
-        var document = (HTMLDocument) getDocument();
-        var element = document.getParagraphElement(getCaretPosition());
-        if (isInCodeBlock()) {
-          element = element.getParentElement();
-        }
-        var html = "<p></p>";
-        document.insertAfterEnd(element, html);
-        setCaretPosition(element.getEndOffset());
-      } catch (Exception exc) {
-        throw new RuntimeException(exc);
-      }
+      insertBlock("<p></p>");
     };
+  }
+
+  private void insertBlock(String html) {
+    try {
+      var document = (HTMLDocument) getDocument();
+      var element = document.getParagraphElement(getCaretPosition());
+      if (isInBlock()) {
+        element = element.getParentElement();
+      }
+      document.insertAfterEnd(element, html);
+      setCaretPosition(element.getEndOffset());
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
+    }
   }
 
   private ActionListener toParagraph() {
     return event -> {
-      if (isInCodeBlock()) {
+      if (isInBlock()) {
         return;
       }
       replaceTag("<p>", "</p>");
@@ -260,6 +271,23 @@ public class WysiwygEditor extends JTextPane implements Editor {
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
+    };
+  }
+
+  private ActionListener debug() {
+    return event -> {
+      var textarea = new JTextArea();
+      textarea.setText(getText());
+      textarea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+      var scrollPane = new JScrollPane(textarea);
+      var dialog = new JDialog();
+      dialog.setTitle("Debug");
+      dialog.setLayout(new BorderLayout());
+      dialog.add(scrollPane, BorderLayout.CENTER);
+      dialog.setModal(true);
+      dialog.pack();
+      dialog.setLocationRelativeTo(App.component());
+      dialog.setVisible(true);
     };
   }
 }

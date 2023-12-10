@@ -154,7 +154,7 @@ public class FileTree extends JTree {
       setModal(true);
       add(textField); 
       setSize(300, 70);
-      setLocationRelativeTo(null);
+      setLocationRelativeTo(App.component());
       setVisible(true);
     }
 
@@ -190,7 +190,7 @@ public class FileTree extends JTree {
       setModal(true);
       add(button); 
       setSize(300, 70);
-      setLocationRelativeTo(null);
+      setLocationRelativeTo(App.component());
       setVisible(true);
     }
 
@@ -221,7 +221,7 @@ public class FileTree extends JTree {
       setModal(true);
       add(textField); 
       setSize(300, 70);
-      setLocationRelativeTo(null);
+      setLocationRelativeTo(App.component());
       setVisible(true);
     }
 

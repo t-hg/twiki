@@ -26,7 +26,6 @@ public class GlobalSearchDialog extends JDialog {
     add(new JScrollPane(table), BorderLayout.CENTER);
     setModal(false);
     setSize(400, 300);
-    setLocationRelativeTo(null);
     setVisible(false);
     setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
     getRootPane().registerKeyboardAction(close(), KeyStrokes.ESC, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);

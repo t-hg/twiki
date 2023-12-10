@@ -5,14 +5,22 @@ import javax.swing.border.*;
 import java.io.*;
 
 public class App extends JFrame {
-  private FileTabs fileTabs;
-  private ToolBar toolBar;
-  private GlobalSearchDialog globalSearchDialog;
+  private static Component component;
 
   public static void main(String[] args) throws Exception {
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    SwingUtilities.invokeLater(App::new);
+    SwingUtilities.invokeLater(() -> {
+      component = new App();
+    });
   }
+
+  public static Component component() {
+    return App.component;
+  }
+  
+  private FileTabs fileTabs;
+  private ToolBar toolBar;
+  private GlobalSearchDialog globalSearchDialog;
   
   public App() {
     Config.load();
@@ -66,7 +74,7 @@ public class App extends JFrame {
         dialog.add(scrollPane, BorderLayout.CENTER);
         dialog.setModal(true);
         dialog.pack();
-        dialog.setLocationRelativeTo(null);
+        dialog.setLocationRelativeTo(App.this);
         dialog.setVisible(true);
       }
     });
@@ -84,6 +92,7 @@ public class App extends JFrame {
 
   private ActionListener globalSearch() {
     return event -> {
+      globalSearchDialog.setLocationRelativeTo(App.this);
       globalSearchDialog.setVisible(true);
       globalSearchDialog.grabFocus();
       globalSearchDialog.addFileSelectionListener(filename -> {
