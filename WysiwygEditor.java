@@ -339,7 +339,32 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
   private ActionListener unindent() {
     return event -> {
-      System.out.println("unindent");
+      try {
+        var document = (HTMLDocument) getDocument();
+        var element = document.getParagraphElement(getCaretPosition()).getParentElement();
+        if (element != null && "li".equals(getElementName(element))) {
+          var parent = element.getParentElement();
+          var listTag = getElementName(parent);
+          var parentOfParent = parent.getParentElement();
+          if (parentOfParent != null && "li".equals(getElementName(parentOfParent))) {
+            var sb = new StringBuilder();
+            var iterator = new ElementIterator(element);
+            Element current = null;
+            while ((current = iterator.next()) != null) {
+              switch (getElementName(current)) {
+                case "content" -> sb.append(getElementText(current));
+                case "li" -> sb.append("<li>");
+                case "ul" -> sb.append("<ul>");
+                case "ol" -> sb.append("<ol>");
+              }
+            }
+            document.insertBeforeEnd(parentOfParent.getParentElement(), sb.toString());
+            document.removeElement(element);
+          }
+        }
+      } catch (Exception exc) {
+        throw new RuntimeException(exc);
+      }
     };
   }
 
