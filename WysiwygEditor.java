@@ -25,11 +25,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
     try {
       var editorKit = new HTMLEditorKit();
       editorKit.setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
-
-      var stylesheet = new StyleSheet();
-      stylesheet.loadRules(new InputStreamReader(getClass().getResourceAsStream(Config.stylesheet())), null);
-      editorKit.setStyleSheet(stylesheet);
-
+      editorKit.setStyleSheet(Config.stylesheet());
       setEditorKit(editorKit);
 
       //System.out.println(
