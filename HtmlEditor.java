@@ -15,6 +15,7 @@ public class HtmlEditor extends JTextPane implements Editor {
   public HtmlEditor() {
     setContentType("text/plain");
     setCursor(new Cursor(Cursor.TEXT_CURSOR));
+    setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
 
     var undoManager = new UndoManager();
     getDocument().addUndoableEditListener(undoManager);
