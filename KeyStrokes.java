@@ -39,6 +39,7 @@ public class KeyStrokes {
   public static KeyStroke TAB         = plain(VK_TAB);
 
   public static KeyStroke SHIFT_ENTER = shift(VK_ENTER);
+  public static KeyStroke SHIFT_TAB   = shift(VK_TAB);
 
   private static KeyStroke plain(int keyCode) {
     return KeyStroke.getKeyStroke(keyCode, 0);

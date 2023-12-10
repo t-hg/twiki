@@ -64,6 +64,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(insertUnorderedList(), KeyStrokes.CTRL_SHIFT_U, WHEN_FOCUSED);
       registerKeyboardAction(insertOrderedList(), KeyStrokes.CTRL_SHIFT_O, WHEN_FOCUSED);
       registerKeyboardAction(indent(), KeyStrokes.TAB, WHEN_FOCUSED);
+      registerKeyboardAction(unindent(), KeyStrokes.SHIFT_TAB, WHEN_FOCUSED);
       registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, WHEN_FOCUSED);
       registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, WHEN_FOCUSED);
       registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, WHEN_FOCUSED);
@@ -333,6 +334,12 @@ public class WysiwygEditor extends JTextPane implements Editor {
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
+    };
+  }
+
+  private ActionListener unindent() {
+    return event -> {
+      System.out.println("unindent");
     };
   }
 
