@@ -82,3 +82,9 @@ em {
 u {
   text-decoration: underline;
 }
+
+ul {
+  margin-top: 10px;
+  margin-left: 20px;
+  list-style-type: disc;
+}
