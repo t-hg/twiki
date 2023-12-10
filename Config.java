@@ -15,9 +15,17 @@ public class Config {
   }
 
   public static String notebook() {
-     return Optional.ofNullable(properties.getProperty("notebook"))
-                    .map(notebook -> notebook.replaceFirst("^~", System.getProperty("user.home")))
-                    .orElse(null);
+    return Optional.ofNullable(properties.getProperty("notebook"))
+                   .map(notebook -> notebook.replaceFirst("^~", System.getProperty("user.home")))
+                   .orElse(Paths.get(System.getProperty("user.home"), "Documents", "twiki").toString());
+  }
+  
+  public static String notes() {
+    return Paths.get(notebook(), "notes").toString();
+  }
+
+  public static String attachments() {
+    return Paths.get(notebook(), "attachments").toString();
   }
 
   public static String pandoc() {

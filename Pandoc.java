@@ -12,7 +12,7 @@ public class Pandoc {
             Config.pandoc(), 
             "-f", "html", 
             "-t", "markdown",
-            "-o", Paths.get(Config.notebook(), filename).toString())
+            "-o", Paths.get(Config.notes(), filename).toString())
         .start();
       process.outputWriter().write(text);
       process.outputWriter().flush();
@@ -32,7 +32,7 @@ public class Pandoc {
 
   public static String markdownToHtml(String filename) {
     try {
-      var path = Paths.get(Config.notebook(), filename);
+      var path = Paths.get(Config.notes(), filename);
       if (!Files.exists(path)) {
         return "";
       }

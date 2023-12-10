@@ -9,7 +9,7 @@ public class Ripgrep {
 
   public static List<SearchResult> search(String searchString) {
     try {
-      var path = Paths.get(Config.notebook());
+      var path = Paths.get(Config.notes());
       var process = 
         new ProcessBuilder(
             Config.ripgrep(), 

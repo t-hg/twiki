@@ -33,7 +33,7 @@ public class FileTree extends JTree {
       var expanded = getExpandedDescendants(new TreePath(model.getRoot()));
       var root = new DefaultMutableTreeNode("root");
       Files
-        .list(Paths.get(Config.notebook()))
+        .list(Paths.get(Config.notes()))
         .sorted()
         .map(Path::getFileName) 
         .map(Path::toString)
@@ -162,10 +162,10 @@ public class FileTree extends JTree {
       return event -> {
         try {
           var filename = ((JTextField) event.getSource()).getText();
-          var path = Paths.get(Config.notebook(), filename);
+          var path = Paths.get(Config.notes(), filename);
           while (Files.exists(path)) {
             filename = filename + "_copy";
-            path = Paths.get(Config.notebook(), filename);
+            path = Paths.get(Config.notes(), filename);
           }
           Files.createFile(path);
           setVisible(false);
@@ -197,7 +197,7 @@ public class FileTree extends JTree {
     private ActionListener deleteFile() {
       return event -> {
         try {
-          var path = Paths.get(Config.notebook(), filename);
+          var path = Paths.get(Config.notes(), filename);
           Files.deleteIfExists(path);
           setVisible(false);
           dispose();
@@ -228,12 +228,12 @@ public class FileTree extends JTree {
     private ActionListener renameFile() {
       return event -> {
         try {
-          var source = Paths.get(Config.notebook(), filename);
+          var source = Paths.get(Config.notes(), filename);
           var newFileName = ((JTextField) event.getSource()).getText();
-          var target = Paths.get(Config.notebook(), newFileName);
+          var target = Paths.get(Config.notes(), newFileName);
           while (Files.exists(target)) {
             newFileName = newFileName + "_copy";
-            target = Paths.get(Config.notebook(), newFileName);
+            target = Paths.get(Config.notes(), newFileName);
           }
           Files.move(source, target);
           setVisible(false);

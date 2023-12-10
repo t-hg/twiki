@@ -39,7 +39,7 @@ public class MarkdownEditor extends JTextPane implements Editor {
         return;
       }
       filename = name;
-      var path = Paths.get(Config.notebook(), name);
+      var path = Paths.get(Config.notes(), name);
       if (!Files.exists(path)) {
         return;
       }
@@ -60,7 +60,7 @@ public class MarkdownEditor extends JTextPane implements Editor {
         if (filename == null) {
           return;
         }
-        var writer = Files.newBufferedWriter(Paths.get(Config.notebook(), filename));
+        var writer = Files.newBufferedWriter(Paths.get(Config.notes(), filename));
         writer.write(getText());
         writer.flush();
         writer.close();

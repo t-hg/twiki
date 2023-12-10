@@ -44,7 +44,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       unsavedChangesTracker = new UnsavedChangesTracker();
       getDocument().addDocumentListener(unsavedChangesTracker);
 
-      ((HTMLDocument) getDocument()).setBase(Paths.get(Config.notebook()).toFile().toURI().toURL());
+      ((HTMLDocument) getDocument()).setBase(Paths.get(Config.notes()).toFile().toURI().toURL());
 
       registerKeyboardAction(getActionMap().get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
@@ -106,29 +106,21 @@ public class WysiwygEditor extends JTextPane implements Editor {
           return;
         }
         var image = (BufferedImage) content.getTransferData(DataFlavor.imageFlavor);
-        var imageDirectory = Paths.get(Config.notebook(), "images");
-        if (!Files.exists(imageDirectory)) {
-          Files.createDirectory(imageDirectory);
+        var attachments = Paths.get(Config.attachments());
+        if (!Files.exists(attachments)) {
+          Files.createDirectory(attachments);
         }
-        var imageFile = 
-          Paths.get(
-              imageDirectory.toString(), 
-              filename + "_" + System.currentTimeMillis() + ".png");
+        var imageFileName = filename + "_" + System.currentTimeMillis() + ".png";
+        var imageFile = Paths.get(attachments.toString(), imageFileName);
         ImageIO.write(image, "png", imageFile.toFile());
-        var imageFileRelative = 
-          Paths.get(Config.notebook())
-            .toFile()
-            .toURI()
-            .relativize(imageFile.toFile().toURI())
-            .getPath();
-        var html = "<p><img src=\""+imageFileRelative+"\"></p>";
+        var html = "<p><img src=\"../attachments/"+imageFileName+"\"></p><p></p>";
         var document = (HTMLDocument) getDocument();
         var element = document.getParagraphElement(getCaretPosition());
         if (isInBlock()) {
           element = element.getParentElement();
         }
         document.insertAfterEnd(element, html);
-        setCaretPosition(element.getEndOffset() + 1);
+        setCaretPosition(element.getEndOffset() + 2);
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
