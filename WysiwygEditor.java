@@ -311,26 +311,38 @@ public class WysiwygEditor extends JTextPane implements Editor {
     return event -> {
       try {
         var document = (HTMLDocument) getDocument();
-        var element = document.getParagraphElement(getCaretPosition()).getParentElement();
+        var position = getCaretPosition();
+        var element = document.getParagraphElement(position).getParentElement();
         if (element != null && "li".equals(getElementName(element))) {
-          var text = getElementText(element);
           var parent = element.getParentElement();
           var listTag = getElementName(parent);
+          var sb = new StringBuilder();
+          var iterator = new ElementIterator(element);
+          Element current = null;
+          while ((current = iterator.next()) != null) {
+            switch (getElementName(current)) {
+              case "content" -> sb.append(getElementText(current));
+              case "li" -> sb.append("<li>");
+              case "ul" -> sb.append("<ul>");
+              case "ol" -> sb.append("<ol>");
+            }
+          }
           for(var index = 0; index < parent.getElementCount(); index++) {
             if (parent.getElement(index) == element && index > 0) {
               var previous = parent.getElement(index - 1);
               if (previous.getElementCount() > 1) {
-                document.insertBeforeEnd(previous.getElement(1), "<li>%s</li>".formatted(text));
+                document.insertBeforeEnd(previous.getElement(1), sb.toString());
               } else {
-                document.insertBeforeEnd(previous, "<%s><li>%s</li></%s>".formatted(listTag, text, listTag));
+                document.insertBeforeEnd(previous, "<%s>%s</%s>".formatted(listTag, sb.toString(), listTag));
               }
               document.removeElement(element);
               break;
             }
           }
-          return;
+          setCaretPosition(position);
+        } else {
+          getActionMap().get("insert-tab").actionPerformed(event);
         }
-        getActionMap().get("insert-tab").actionPerformed(event);
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
@@ -341,7 +353,8 @@ public class WysiwygEditor extends JTextPane implements Editor {
     return event -> {
       try {
         var document = (HTMLDocument) getDocument();
-        var element = document.getParagraphElement(getCaretPosition()).getParentElement();
+        var position = getCaretPosition();
+        var element = document.getParagraphElement(position).getParentElement();
         if (element != null && "li".equals(getElementName(element))) {
           var parent = element.getParentElement();
           var listTag = getElementName(parent);
@@ -360,6 +373,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
             }
             document.insertBeforeEnd(parentOfParent.getParentElement(), sb.toString());
             document.removeElement(element);
+            setCaretPosition(position);
           }
         }
       } catch (Exception exc) {
