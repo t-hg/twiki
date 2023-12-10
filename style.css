@@ -102,3 +102,19 @@ ol {
 ol ol {
   margin-top: 0;
 }
+
+table {
+  margin-top: 10px;
+  background-color: #aaa;
+  border-spacing: 1;
+}
+
+th {
+  background-color: #eee;
+  padding: 2px 4px;
+}
+
+td {
+  background-color: #fff;
+  padding: 2px 4px;
+}
