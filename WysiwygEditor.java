@@ -17,6 +17,8 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
+import static javax.swing.JComponent.WHEN_FOCUSED;
+
 public class WysiwygEditor extends JTextPane implements Editor {
   private String filename;
   private UnsavedChangesTracker unsavedChangesTracker;
@@ -50,29 +52,31 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
       ((HTMLDocument) getDocument()).setBase(Paths.get(Config.notes()).toFile().toURI().toURL());
 
-      registerKeyboardAction(getActionMap().get("font-bold"), KeyStrokes.CTRL_B, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(continueNext(), KeyStrokes.ENTER, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(insertCodeBlock(), KeyStrokes.CTRL_SHIFT_C, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(insertInfoBlock(), KeyStrokes.CTRL_SHIFT_I, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(insertWarnBlock(), KeyStrokes.CTRL_SHIFT_W, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(insertUnorderedList(), KeyStrokes.CTRL_SHIFT_U, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(insertOrderedList(), KeyStrokes.CTRL_SHIFT_O, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(3), KeyStrokes.CTRL_3, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(4), KeyStrokes.CTRL_4, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(5), KeyStrokes.CTRL_5, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(6), KeyStrokes.CTRL_6, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(save(), KeyStrokes.CTRL_S, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(refresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(undo(undoManager), KeyStrokes.CTRL_Z, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(redo(undoManager), KeyStrokes.CTRL_Y, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(debug(), KeyStrokes.F12, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(getActionMap().get("font-bold"), KeyStrokes.CTRL_B, WHEN_FOCUSED);
+      registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, WHEN_FOCUSED);
+      registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, WHEN_FOCUSED);
+      registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, WHEN_FOCUSED);
+      registerKeyboardAction(continueNext(), KeyStrokes.ENTER, WHEN_FOCUSED);
+      registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, WHEN_FOCUSED);
+      registerKeyboardAction(insertCodeBlock(), KeyStrokes.CTRL_SHIFT_C, WHEN_FOCUSED);
+      registerKeyboardAction(insertInfoBlock(), KeyStrokes.CTRL_SHIFT_I, WHEN_FOCUSED);
+      registerKeyboardAction(insertWarnBlock(), KeyStrokes.CTRL_SHIFT_W, WHEN_FOCUSED);
+      registerKeyboardAction(insertUnorderedList(), KeyStrokes.CTRL_SHIFT_U, WHEN_FOCUSED);
+      registerKeyboardAction(insertOrderedList(), KeyStrokes.CTRL_SHIFT_O, WHEN_FOCUSED);
+      registerKeyboardAction(indent(), KeyStrokes.TAB, WHEN_FOCUSED);
+      registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, WHEN_FOCUSED);
+      registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, WHEN_FOCUSED);
+      registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, WHEN_FOCUSED);
+      registerKeyboardAction(toHeading(3), KeyStrokes.CTRL_3, WHEN_FOCUSED);
+      registerKeyboardAction(toHeading(4), KeyStrokes.CTRL_4, WHEN_FOCUSED);
+      registerKeyboardAction(toHeading(5), KeyStrokes.CTRL_5, WHEN_FOCUSED);
+      registerKeyboardAction(toHeading(6), KeyStrokes.CTRL_6, WHEN_FOCUSED);
+      registerKeyboardAction(save(), KeyStrokes.CTRL_S, WHEN_FOCUSED);
+      registerKeyboardAction(refresh(), KeyStrokes.CTRL_R, WHEN_FOCUSED);
+      registerKeyboardAction(undo(undoManager), KeyStrokes.CTRL_Z, WHEN_FOCUSED);
+      registerKeyboardAction(redo(undoManager), KeyStrokes.CTRL_Y, WHEN_FOCUSED);
+      registerKeyboardAction(backspace(), KeyStrokes.BACKSPACE, WHEN_FOCUSED);
+      registerKeyboardAction(debug(), KeyStrokes.F12, WHEN_FOCUSED);
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
@@ -190,10 +194,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
         var document = (HTMLDocument) getDocument();
         var element = document.getParagraphElement(getCaretPosition()).getParentElement();
         if (element != null) {
-          var text = 
-            document.getText(
-                element.getStartOffset(), 
-                element.getEndOffset() - element.getStartOffset());
+          var text = getElementText(element);
           if ("li".equals(getElementName(element))) {
             if (!text.isBlank()) {
               document.insertAfterEnd(element, "<li></li>");
@@ -213,6 +214,16 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
   private String getElementName(Element element) {
     return element.getAttributes().getAttribute(AttributeSet.NameAttribute).toString();
+  }
+
+  private String getElementText(Element element) {
+    try {
+      var document = (HTMLDocument) getDocument();
+      var length = element.getEndOffset() - element.getStartOffset();
+      return document.getText(element.getStartOffset(), length);
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
+    }
   }
 
   private void addToBody(String html) {
@@ -249,10 +260,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
     try {
       var document = (HTMLDocument) getDocument();
       var element = document.getParagraphElement(getCaretPosition());
-      var elementText = 
-        document.getText(
-            element.getStartOffset(), 
-            element.getEndOffset() - element.getStartOffset()); 
+      var elementText = getElementText(element);
       document.setOuterHTML(element, startTag + elementText + endTag);
     } catch (Exception exc) {
       throw new RuntimeException(exc);
@@ -295,6 +303,43 @@ public class WysiwygEditor extends JTextPane implements Editor {
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
+    };
+  }
+
+  private ActionListener indent() {
+    return event -> {
+      try {
+        var document = (HTMLDocument) getDocument();
+        var element = document.getParagraphElement(getCaretPosition()).getParentElement();
+        if (element != null && "li".equals(getElementName(element))) {
+          var text = getElementText(element);
+          var parent = element.getParentElement();
+          var listTag = getElementName(parent);
+          for(var index = 0; index < parent.getElementCount(); index++) {
+            if (parent.getElement(index) == element && index > 0) {
+              var previous = parent.getElement(index - 1);
+              if (previous.getElementCount() > 1) {
+                document.insertBeforeEnd(previous.getElement(1), "<li>%s</li>".formatted(text));
+              } else {
+                document.insertBeforeEnd(previous, "<%s><li>%s</li></%s>".formatted(listTag, text, listTag));
+              }
+              document.removeElement(element);
+              break;
+            }
+          }
+          return;
+        }
+        getActionMap().get("insert-tab").actionPerformed(event);
+      } catch (Exception exc) {
+        throw new RuntimeException(exc);
+      }
+    };
+  }
+
+  private ActionListener backspace() {
+    return event -> {
+      getActionMap().get("delete-previous").actionPerformed(event);
+      resetCaret();
     };
   }
 

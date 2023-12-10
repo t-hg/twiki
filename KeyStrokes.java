@@ -30,11 +30,13 @@ public class KeyStrokes {
   public static KeyStroke CTRL_SHIFT_U = ctrlShift(VK_U);
   public static KeyStroke CTRL_SHIFT_W = ctrlShift(VK_W);
 
-  public static KeyStroke DEL   = plain(VK_DELETE);
-  public static KeyStroke ENTER = plain(VK_ENTER);
-  public static KeyStroke ESC   = plain(VK_ESCAPE);
-  public static KeyStroke F2    = plain(VK_F2);
-  public static KeyStroke F12   = plain(VK_F12);
+  public static KeyStroke BACKSPACE   = plain(VK_BACK_SPACE);
+  public static KeyStroke DEL         = plain(VK_DELETE);
+  public static KeyStroke ENTER       = plain(VK_ENTER);
+  public static KeyStroke ESC         = plain(VK_ESCAPE);
+  public static KeyStroke F2          = plain(VK_F2);
+  public static KeyStroke F12         = plain(VK_F12);
+  public static KeyStroke TAB         = plain(VK_TAB);
 
   public static KeyStroke SHIFT_ENTER = shift(VK_ENTER);
 
