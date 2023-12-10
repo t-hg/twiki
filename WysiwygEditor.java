@@ -63,6 +63,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(insertWarnBlock(), KeyStrokes.CTRL_SHIFT_W, WHEN_FOCUSED);
       registerKeyboardAction(insertUnorderedList(), KeyStrokes.CTRL_SHIFT_U, WHEN_FOCUSED);
       registerKeyboardAction(insertOrderedList(), KeyStrokes.CTRL_SHIFT_O, WHEN_FOCUSED);
+      registerKeyboardAction(insertTable(), KeyStrokes.CTRL_SHIFT_T, WHEN_FOCUSED);
       registerKeyboardAction(indent(), KeyStrokes.TAB, WHEN_FOCUSED);
       registerKeyboardAction(unindent(), KeyStrokes.SHIFT_TAB, WHEN_FOCUSED);
       registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, WHEN_FOCUSED);
@@ -186,6 +187,55 @@ public class WysiwygEditor extends JTextPane implements Editor {
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
+    };
+  }
+
+  private ActionListener insertTable() {
+    return event -> {
+      var colSpinner = new JSpinner(new SpinnerNumberModel(2, 0, 100, 1));
+      var rowSpinner = new JSpinner(new SpinnerNumberModel(2, 0, 100, 1));
+      
+      Object[] message = {
+        "Columns:", colSpinner,
+        "Rows:   ", rowSpinner
+      };
+
+      var option = 
+        JOptionPane.showConfirmDialog(
+            App.component(), 
+            message, 
+            "Insert table", 
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE);
+
+      if (option != JOptionPane.OK_OPTION) {
+        return;
+      }
+
+      var cols = (int) colSpinner.getValue();
+      var rows = (int) rowSpinner.getValue();
+     
+      var sb = new StringBuilder();
+      sb.append("<table>");
+      sb.append("<thead>");
+      sb.append("<tr>");
+      for (int col = 0; col < cols; col++) {
+        sb.append("<th></th>");
+      }
+      sb.append("</tr>");
+      sb.append("</thead>");
+      sb.append("<tbody>");
+      for (int row = 0; row < rows; row++) {
+        sb.append("<tr>");
+        for (int col = 0; col < cols; col++) {
+          sb.append("<td></td>");
+        }
+        sb.append("</tr>");
+      }
+      sb.append("</tbody>");
+      sb.append("</table>");
+
+      addToBody(sb.toString());
     };
   }
 
