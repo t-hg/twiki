@@ -54,12 +54,13 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, JComponent.WHEN_FOCUSED);
-      registerKeyboardAction(insertParagraph(), KeyStrokes.ENTER, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(continueNext(), KeyStrokes.ENTER, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertCodeBlock(), KeyStrokes.CTRL_SHIFT_C, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertInfoBlock(), KeyStrokes.CTRL_SHIFT_I, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertWarnBlock(), KeyStrokes.CTRL_SHIFT_W, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(insertUnorderedList(), KeyStrokes.CTRL_SHIFT_U, JComponent.WHEN_FOCUSED);
+      registerKeyboardAction(insertOrderedList(), KeyStrokes.CTRL_SHIFT_O, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, JComponent.WHEN_FOCUSED);
       registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, JComponent.WHEN_FOCUSED);
@@ -119,7 +120,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
         var imageFile = Paths.get(attachments.toString(), imageFileName);
         ImageIO.write(image, "png", imageFile.toFile());
         var html = "<p><img src=\"../attachments/"+imageFileName+"\"></p>";
-        appendBody(html);
+        addToBody(html);
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
@@ -128,7 +129,13 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
   private ActionListener insertUnorderedList() {
     return event ->  {
-      appendBody("<ul><li></li></ul>");
+      addToBody("<ul><li></li></ul>");
+    };
+  }
+  
+  private ActionListener insertOrderedList() {
+    return event ->  {
+      addToBody("<ol><li></li></ol>");
     };
   }
 
@@ -147,13 +154,13 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
   private ActionListener insertInfoBlock() {
     return event -> {
-      appendBody("<div class=\"info\"><p></p></div>");
+      addToBody("<div class=\"info\"><p></p></div>");
     };
   }
   
   private ActionListener insertWarnBlock() {
     return event -> {
-      appendBody("<div class=\"warn\"><p></p></div>");
+      addToBody("<div class=\"warn\"><p></p></div>");
     };
   }
 
@@ -169,7 +176,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
           editorKit.insertHTML(document, getCaretPosition(), html, 0, 0, HTML.Tag.CODE);
           resetCaret();
         } else {
-          appendBody("<pre><code></code></pre>");
+          addToBody("<pre><code></code></pre>");
         }
       } catch (Exception exc) {
         throw new RuntimeException(exc);
@@ -177,9 +184,30 @@ public class WysiwygEditor extends JTextPane implements Editor {
     };
   }
 
-  private ActionListener insertParagraph() {
+  private ActionListener continueNext() {
     return event -> {
-      appendBody("<p></p>");
+      try {
+        var document = (HTMLDocument) getDocument();
+        var element = document.getParagraphElement(getCaretPosition()).getParentElement();
+        if (element != null) {
+          var text = 
+            document.getText(
+                element.getStartOffset(), 
+                element.getEndOffset() - element.getStartOffset());
+          if ("li".equals(getElementName(element))) {
+            if (!text.isBlank()) {
+              document.insertAfterEnd(element, "<li></li>");
+              setCaretPosition(element.getEndOffset());
+              return;
+            } else {
+              document.removeElement(element);
+            }
+          }
+        }
+        addToBody("<p></p>");
+      } catch (Exception exc)  {
+        throw new RuntimeException(exc);
+      }
     };
   }
 
@@ -187,7 +215,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
     return element.getAttributes().getAttribute(AttributeSet.NameAttribute).toString();
   }
 
-  private void appendBody(String html) {
+  private void addToBody(String html) {
     try {
       var document = (HTMLDocument) getDocument();
       var element = document.getParagraphElement(getCaretPosition());

@@ -26,6 +26,7 @@ public class KeyStrokes {
   public static KeyStroke CTRL_SHIFT_C = ctrlShift(VK_C);
   public static KeyStroke CTRL_SHIFT_F = ctrlShift(VK_F);
   public static KeyStroke CTRL_SHIFT_I = ctrlShift(VK_I);
+  public static KeyStroke CTRL_SHIFT_O = ctrlShift(VK_O);
   public static KeyStroke CTRL_SHIFT_U = ctrlShift(VK_U);
   public static KeyStroke CTRL_SHIFT_W = ctrlShift(VK_W);
 
