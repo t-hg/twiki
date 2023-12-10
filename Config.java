@@ -29,17 +29,29 @@ public class Config {
   }
 
   public static String notebook() {
-    return Optional.ofNullable(properties.getProperty("notebook"))
-                   .map(notebook -> notebook.replaceFirst("^~", System.getProperty("user.home")))
-                   .orElse(Paths.get(System.getProperty("user.home"), "Documents", "twiki").toString());
+    try {
+      var path = 
+        Optional.ofNullable(properties.getProperty("notebook"))
+                .map(notebook -> notebook.replaceFirst("^~", System.getProperty("user.home")))
+                .map(Paths::get)
+                .orElse(Paths.get(System.getProperty("user.home"), "Documents", "twiki"));
+      createDirectory(path);
+      return path.toString();
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
+    }
   }
   
   public static String notes() {
-    return Paths.get(notebook(), "notes").toString();
+    var path = Paths.get(notebook(), "notes");
+    createDirectory(path);
+    return path.toString();
   }
 
   public static String attachments() {
-    return Paths.get(notebook(), "attachments").toString();
+    var path = Paths.get(notebook(), "attachments");
+    createDirectory(path);
+    return path.toString();
   }
 
   public static String pandoc() {
@@ -60,6 +72,16 @@ public class Config {
           : new InputStreamReader(Config.class.getResourceAsStream("style.css"));
       stylesheet.loadRules(reader, null);
       return stylesheet;
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
+    }
+  }
+
+  private static void createDirectory(Path path) {
+    try {
+      if (!Files.exists(path)) {
+        Files.createDirectory(path);
+      }
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }

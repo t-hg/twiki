@@ -119,9 +119,6 @@ public class WysiwygEditor extends JTextPane implements Editor {
         }
         var image = (BufferedImage) content.getTransferData(DataFlavor.imageFlavor);
         var attachments = Paths.get(Config.attachments());
-        if (!Files.exists(attachments)) {
-          Files.createDirectory(attachments);
-        }
         var imageFileName = filename + "_" + System.currentTimeMillis() + ".png";
         var imageFile = Paths.get(attachments.toString(), imageFileName);
         ImageIO.write(image, "png", imageFile.toFile());
