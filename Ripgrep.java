@@ -16,18 +16,17 @@ public class Ripgrep {
             Config.ripgrep(),
             "-i", "-c", searchString,
             path.toString())
+        .redirectError(ProcessBuilder.Redirect.INHERIT)
         .start();
+      var output = process.inputReader().lines().collect(Collectors.joining(System.lineSeparator()));
       process.waitFor(30, TimeUnit.SECONDS);
-      if (process.exitValue() > 1) { // 0: found, 
-                                     // 1: nothing found, 
-                                     // 2: error
-        throw new RuntimeException(
-            process.errorReader()
-                   .lines()
-                   .collect(Collectors.joining(System.lineSeparator())));
+      if (process.exitValue() > 1) { 
+        // 0: found, 
+        // 1: nothing found, 
+        // 2: error
+        throw new RuntimeException(output);
       } 
-      return process.inputReader()
-                   .lines()
+      return output.lines()
                    .map(String::strip)
                    .map(str ->  {
                      var index = str.lastIndexOf(":");

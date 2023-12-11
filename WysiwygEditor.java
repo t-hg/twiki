@@ -42,7 +42,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       //    Arrays.stream(getActionMap().allKeys())
       //      .map(Object::toString)
       //      .sorted()
-      //      .collect(Collectors.joining("\n")));
+      //      .collect(Collectors.joining(System.lineSeparator())));
 
       var undoManager = new UndoManager();
       getDocument().addUndoableEditListener(undoManager);

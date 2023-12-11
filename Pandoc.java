@@ -14,17 +14,18 @@ public class Pandoc {
             "-f", "html", 
             "-t", "markdown",
             "-o", Paths.get(Config.notes(), filename).toString())
+        .redirectError(ProcessBuilder.Redirect.INHERIT)
         .start();
       process.outputWriter().write(text);
       process.outputWriter().flush();
       process.outputWriter().close();
+      var output =
+        process.inputReader()
+               .lines()
+               .collect(Collectors.joining(System.lineSeparator()));
       process.waitFor(30, TimeUnit.SECONDS);
       if (process.exitValue() != 0) {
-        throw new RuntimeException(
-            process
-              .errorReader()
-              .lines()
-              .collect(Collectors.joining(System.lineSeparator())));
+        throw new RuntimeException(output);
       } 
     } catch (Exception exc) {
       throw new RuntimeException(exc);
@@ -43,19 +44,17 @@ public class Pandoc {
             "-f", "markdown", 
             "-t", "html", 
             path.toString())
+        .redirectError(ProcessBuilder.Redirect.INHERIT)
         .start();
-      process.waitFor(30, TimeUnit.SECONDS);
-      if (process.exitValue() != 0) {
-        throw new RuntimeException(
-            process.errorReader()
-                   .lines()
-                   .collect(Collectors.joining(System.lineSeparator())));
-      } 
-      var html = 
+      var output = 
         process.inputReader()
                .lines()
                .collect(Collectors.joining(System.lineSeparator()));
-      return html;
+      process.waitFor(30, TimeUnit.SECONDS);
+      if (process.exitValue() != 0) {
+        throw new RuntimeException(output);
+      } 
+      return output;
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
