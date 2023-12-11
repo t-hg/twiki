@@ -1,5 +1,6 @@
 import java.io.*;
 import java.nio.*;
+import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
@@ -18,7 +19,10 @@ public class Ripgrep {
             path.toString())
         .redirectError(ProcessBuilder.Redirect.INHERIT)
         .start();
-      var output = process.inputReader().lines().collect(Collectors.joining(System.lineSeparator()));
+      var output = 
+        process.inputReader(StandardCharsets.UTF_8)
+               .lines()
+               .collect(Collectors.joining(System.lineSeparator()));
       process.waitFor(30, TimeUnit.SECONDS);
       if (process.exitValue() > 1) { 
         // 0: found, 

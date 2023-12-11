@@ -1,5 +1,6 @@
 import java.io.*;
 import java.nio.*;
+import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
@@ -16,11 +17,12 @@ public class Pandoc {
             "-o", Paths.get(Config.notes(), filename).toString())
         .redirectError(ProcessBuilder.Redirect.INHERIT)
         .start();
-      process.outputWriter().write(text);
-      process.outputWriter().flush();
-      process.outputWriter().close();
+      var outputWriter = process.outputWriter(StandardCharsets.UTF_8);
+      outputWriter.write(text);
+      outputWriter.flush();
+      outputWriter.close();
       var output =
-        process.inputReader()
+        process.inputReader(StandardCharsets.UTF_8)
                .lines()
                .collect(Collectors.joining(System.lineSeparator()));
       process.waitFor(30, TimeUnit.SECONDS);
@@ -47,7 +49,7 @@ public class Pandoc {
         .redirectError(ProcessBuilder.Redirect.INHERIT)
         .start();
       var output = 
-        process.inputReader()
+        process.inputReader(StandardCharsets.UTF_8)
                .lines()
                .collect(Collectors.joining(System.lineSeparator()));
       process.waitFor(30, TimeUnit.SECONDS);
