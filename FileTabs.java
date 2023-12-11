@@ -15,7 +15,6 @@ public class FileTabs extends JTabbedPane {
   private List<Tab> tabs = new ArrayList<>();
 
   public FileTabs() {
-    setBorder(new EmptyBorder(4, 0, 2, 2));
     addMouseListener(removeTab());
   }
 

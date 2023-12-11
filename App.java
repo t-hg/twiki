@@ -8,7 +8,7 @@ public class App extends JFrame {
   private static Component component;
 
   public static void main(String[] args) throws Exception {
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     SwingUtilities.invokeLater(() -> {
       component = new App();
     });

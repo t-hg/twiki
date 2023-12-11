@@ -12,7 +12,6 @@ public class EditorTabs extends JTabbedPane {
 
   public EditorTabs() {
     super(JTabbedPane.BOTTOM);
-    setBorder(new EmptyBorder(2, 0, 4, 0));
     setModel(new EditorTabsModel());
     add("Rendered", scroll(wysiwygEditor));
     add("HTML", scroll(htmlEditor));
@@ -21,9 +20,7 @@ public class EditorTabs extends JTabbedPane {
   }
 
   private JScrollPane scroll(JComponent component) {
-    var scrollPane = new JScrollPane(component);
-    scrollPane.setViewportBorder(null);
-    return scrollPane;
+    return new JScrollPane(component);
   }
 
   public void onSearch(String searchString) {
