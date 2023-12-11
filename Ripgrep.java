@@ -12,8 +12,8 @@ public class Ripgrep {
       var path = Paths.get(Config.notes());
       var process = 
         new ProcessBuilder(
-            Config.ripgrep(), 
-            "-c", searchString,
+            Config.ripgrep(),
+            "-i", "-c", searchString,
             path.toString())
         .start();
       process.waitFor();
@@ -28,11 +28,12 @@ public class Ripgrep {
       return process.inputReader()
                    .lines()
                    .map(String::strip)
-                   .map(line -> line.split(":"))
-                   .map(split -> 
-                       new SearchResult(
-                         Paths.get(split[0]).getFileName().toString(), 
-                         Integer.valueOf(split[1])))
+                   .map(str ->  {
+                     var index = str.lastIndexOf(":");
+                     return new SearchResult(
+                       Paths.get(str.substring(0, index)).getFileName().toString(), 
+                       Integer.valueOf(str.substring(index + 1)));
+                   })
                    .sorted((a, b) -> b.count() - a.count())
                    .collect(Collectors.toList());
     } catch (Exception exc) {
