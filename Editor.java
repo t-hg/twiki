@@ -16,7 +16,8 @@ public interface Editor {
       }
       var highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
       var document = textPane.getDocument();
-      var text = document.getText(0, document.getLength());
+      var text = document.getText(0, document.getLength()).toLowerCase();
+      searchString = searchString.toLowerCase();
       int index = 0;
       boolean firstOccurence = true;
       while ((index = text.indexOf(searchString, index)) > -1) {
