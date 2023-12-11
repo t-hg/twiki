@@ -16,5 +16,5 @@ run: compile
 
 .PHONY: jar
 jar: compile
-	@jar cfe twiki.jar App *.class style.css
+	@jar cfe twiki.jar App *.class style.css icon.png
 	@chmod +x twiki.jar

@@ -27,6 +27,7 @@ public class App extends JFrame {
     fileTabs = new FileTabs();
     toolBar = new ToolBar();
     globalSearchDialog = new GlobalSearchDialog();
+    setIconImage(new ImageIcon(getClass().getResource("icon.png")).getImage());
     setTitle("twiki");
     setSize(1280, 720);
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
