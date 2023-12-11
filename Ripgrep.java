@@ -3,6 +3,7 @@ import java.nio.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
+import java.util.concurrent.*;
 
 public class Ripgrep {
   public record SearchResult(String filename, int count) {};
@@ -16,7 +17,7 @@ public class Ripgrep {
             "-i", "-c", searchString,
             path.toString())
         .start();
-      process.waitFor();
+      process.waitFor(30, TimeUnit.SECONDS);
       if (process.exitValue() > 1) { // 0: found, 
                                      // 1: nothing found, 
                                      // 2: error

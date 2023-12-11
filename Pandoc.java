@@ -3,6 +3,7 @@ import java.nio.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
+import java.util.concurrent.*;
 
 public class Pandoc {
   public static void htmlToMarkdown(String filename, String text) {
@@ -17,7 +18,7 @@ public class Pandoc {
       process.outputWriter().write(text);
       process.outputWriter().flush();
       process.outputWriter().close();
-      process.waitFor();
+      process.waitFor(30, TimeUnit.SECONDS);
       if (process.exitValue() != 0) {
         throw new RuntimeException(
             process
