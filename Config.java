@@ -11,9 +11,10 @@ public class Config {
   }
 
   private static void loadFromOS(String os) {
-    switch (os) {
-      case "Windows" -> loadFromPath(Paths.get(System.getenv("APPDATA")));
-      case "Linux"   -> loadFromPath(Paths.get(System.getProperty("user.home"), ".config"));
+    if (os.startsWith("Windows")) {
+      loadFromPath(Paths.get(System.getenv("APPDATA")));
+    } else if ("Linux".equals(os)) {
+      loadFromPath(Paths.get(System.getProperty("user.home"), ".config"));
     }
   }
 
