@@ -44,7 +44,7 @@ public class Pandoc {
             "-t", "html", 
             path.toString())
         .start();
-      process.waitFor();
+      process.waitFor(30, TimeUnit.SECONDS);
       if (process.exitValue() != 0) {
         throw new RuntimeException(
             process.errorReader()
