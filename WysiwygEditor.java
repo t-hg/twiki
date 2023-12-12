@@ -56,8 +56,8 @@ public class WysiwygEditor extends JTextPane implements Editor {
       registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, WHEN_FOCUSED);
       registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, WHEN_FOCUSED);
       registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, WHEN_FOCUSED);
-      registerKeyboardAction(insertBreak(), KeyStrokes.ENTER, WHEN_FOCUSED);
-      registerKeyboardAction(continueNext(), KeyStrokes.SHIFT_ENTER, WHEN_FOCUSED);
+      registerKeyboardAction(continueNext(), KeyStrokes.ENTER, WHEN_FOCUSED);
+      registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, WHEN_FOCUSED);
       registerKeyboardAction(insertCodeBlock(), KeyStrokes.CTRL_SHIFT_C, WHEN_FOCUSED);
       registerKeyboardAction(insertInfoBlock(), KeyStrokes.CTRL_SHIFT_I, WHEN_FOCUSED);
       registerKeyboardAction(insertWarnBlock(), KeyStrokes.CTRL_SHIFT_W, WHEN_FOCUSED);
