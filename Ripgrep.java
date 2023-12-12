@@ -7,7 +7,7 @@ import java.util.stream.*;
 import java.util.concurrent.*;
 
 public class Ripgrep {
-  public record SearchResult(String filename, int count) {};
+  public record SearchResult(Note note, int count) {};
 
   public static List<SearchResult> search(String searchString) {
     try {
@@ -35,7 +35,7 @@ public class Ripgrep {
                    .map(str ->  {
                      var index = str.lastIndexOf(":");
                      return new SearchResult(
-                       Paths.get(str.substring(0, index)).getFileName().toString(), 
+                       new Note(Paths.get(str.substring(0, index))), 
                        Integer.valueOf(str.substring(index + 1)));
                    })
                    .sorted((a, b) -> b.count() - a.count())

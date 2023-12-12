@@ -9,7 +9,7 @@ import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
 public class HtmlEditor extends JTextPane implements Editor {
-  private String filename;
+  private Note note;
   private UnsavedChangesTracker unsavedChangesTracker;
 
   public HtmlEditor() {
@@ -33,13 +33,13 @@ public class HtmlEditor extends JTextPane implements Editor {
     Editor.onSearch(this, searchString);
   }
 
-  public void onFileSelected(String name) {
+  public void onNoteSelected(Note note) {
     try {
       if (hasUnsavedChanges() && MessageDialogs.unsavedChanges(HtmlEditor.this) != 0) {
         return;
       }
-      filename = name;
-      setText(Pandoc.markdownToHtml(filename));
+      this.note = note;
+      setText(Pandoc.markdownToHtml(note));
       unsavedChangesTracker.reset();
     } catch (Exception exc) {
       throw new RuntimeException(exc);
@@ -52,20 +52,20 @@ public class HtmlEditor extends JTextPane implements Editor {
 
   private ActionListener save() {
     return event -> {
-      if (filename == null) {
+      if (note == null) {
         return;
       }
-      Pandoc.htmlToMarkdown(filename, getText());
+      Pandoc.htmlToMarkdown(note, getText());
       unsavedChangesTracker.reset();
     };
   }
 
   private ActionListener refresh() {
     return event -> {
-      if (filename == null) {
+      if (note == null) {
         return;
       }
-      onFileSelected(filename);
+      onNoteSelected(note);
     };
   }
 

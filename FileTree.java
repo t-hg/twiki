@@ -10,7 +10,8 @@ import javax.swing.tree.*;
 
 public class FileTree extends JTree {
 
-  private java.util.List<Consumer<String>> selectionListeners = new ArrayList<>();
+  private Notebook notebook = new Notebook();
+  private java.util.List<Consumer<Note>> selectionListeners = new ArrayList<>();
 
   public FileTree() {
     refresh();
@@ -28,35 +29,27 @@ public class FileTree extends JTree {
   }
 
   private void refresh() {
-    try {
-      var model = (DefaultTreeModel) getModel();
-      var expanded = getExpandedDescendants(new TreePath(model.getRoot()));
-      var root = new DefaultMutableTreeNode("root");
-      Files
-        .list(Paths.get(Config.notes()))
-        .sorted()
-        .map(Path::getFileName) 
-        .map(Path::toString)
-        .forEach(name -> {
-          var node = root;
-          for (var part : name.split("\\.")) {
-            var child = getChild(node, part);
-            if (child == null) {
-              child = new DefaultMutableTreeNode(part);
-              node.add(child); 
-            } 
-            node = child;
-          }
-        });
-      model.setRoot(root);
-      model.reload();
-      while(expanded != null && expanded.hasMoreElements()) {
-        var treePath = expanded.nextElement();
-        var filename = getFileName(treePath);
-        expandFileName(filename, false);
+    var model = (DefaultTreeModel) getModel();
+    var expanded = getExpandedDescendants(new TreePath(model.getRoot()));
+    var root = new DefaultMutableTreeNode("root");
+    notebook.listNotes().forEach(note -> {
+      var node = root;
+      for (var part : note.getFullName().split("\\.")) {
+        var child = getChild(node, part);
+        if (child == null) {
+          child = new DefaultMutableTreeNode(part);
+          node.add(child); 
+        } 
+        node = child;
       }
-    } catch (IOException exc) {
-      throw new RuntimeException(exc);
+    });
+    model.setRoot(root);
+    model.reload();
+    while(expanded != null && expanded.hasMoreElements()) {
+      var treePath = expanded.nextElement();
+      var fullName = getFullName(treePath);
+      var note = Note.ofFullName(fullName);
+      expandFileName(note, false);
     }
   }
 
@@ -71,11 +64,11 @@ public class FileTree extends JTree {
     return null;
   }
 
-  public void addSelectionListener(Consumer<String> listener) {
+  public void addSelectionListener(Consumer<Note> listener) {
     selectionListeners.add(listener);
   }
 
-  private String getFileName(TreePath path) {
+  private String getFullName(TreePath path) {
     var names = new ArrayList<String>();
     for(var part : path.getPath()) {
       var name = part.toString();
@@ -90,13 +83,15 @@ public class FileTree extends JTree {
   private TreeSelectionListener onSelected() {
     return event -> {
       var path = event.getPath();
-      var filename = getFileName(path);
-      selectionListeners.forEach(listener -> listener.accept(filename));
+      var fullName = getFullName(path);
+      var note = Note.ofFullName(fullName);
+      selectionListeners.forEach(listener -> listener.accept(note));
     };
   }
 
-  private void expandFileName(String filename, boolean select) {
-    var parts = filename.split("\\.");
+  private void expandFileName(Note note, boolean select) {
+    var fullName = note.getFullName();
+    var parts = fullName.split("\\.");
     var stack = new Stack<String>();
     for (int i = parts.length - 1; i >= 0; i--) {
       stack.push(parts[i]);
@@ -121,129 +116,36 @@ public class FileTree extends JTree {
 
   private ActionListener showNewDialog() {
     return event -> {
-      new NewDialog();
+      notebook
+        .newNote()
+        .ifPresent(note -> {
+          refresh();
+          expandFileName(note, true);
+        });
     };
   }
 
   private ActionListener showDeleteDialog() {
     return event -> {
-      var filename = getSelectionPath() != null ? getFileName(getSelectionPath()) : "";
-      if (filename == null || "".equals(filename.strip())) {
+      var fullName = getSelectionPath() != null ? getFullName(getSelectionPath()) : "";
+      if (fullName == null || "".equals(fullName.strip())) {
         return;
       }
-      new DeleteDialog(filename);
+      var note = Note.ofFullName(fullName);
+      notebook.deleteNote(note);
+      refresh();
     };
   }
   
   private ActionListener showRenameDialog() {
     return event -> {
-      var filename = getSelectionPath() != null ? getFileName(getSelectionPath()) : "";
-      if (filename == null || "".equals(filename.strip())) {
+      var fullName = getSelectionPath() != null ? getFullName(getSelectionPath()) : "";
+      if (fullName == null || "".equals(fullName.strip())) {
         return;
       }
-      new RenameDialog(filename);
+      var note = Note.ofFullName(fullName);
+      notebook.renameNote(note);
+      refresh();
     };
-  }
-
-  class NewDialog extends JDialog {
-    public NewDialog() {
-      var filename = getSelectionPath() != null ? getFileName(getSelectionPath()) : "";
-      var textField = new JTextField(filename);
-      textField.addActionListener(addNewFile());
-      setTitle("New");
-      setModal(true);
-      add(textField); 
-      setSize(300, 70);
-      setLocationRelativeTo(App.component());
-      setVisible(true);
-    }
-
-    private ActionListener addNewFile() {
-      return event -> {
-        try {
-          var filename = ((JTextField) event.getSource()).getText();
-          var path = Paths.get(Config.notes(), filename);
-          while (Files.exists(path)) {
-            filename = filename + "_copy";
-            path = Paths.get(Config.notes(), filename);
-          }
-          Files.createFile(path);
-          setVisible(false);
-          dispose();
-          refresh();
-          expandFileName(filename, true);
-        } catch (Exception exc) {
-          throw new RuntimeException(exc);
-        }
-      };
-    }
-  }
-  
-  class DeleteDialog extends JDialog {
-    private String filename;
-
-    public DeleteDialog(String filename) {
-      this.filename = filename;
-      setTitle("Delete " + filename);
-      var button = new JButton("Delete");
-      button.addActionListener(deleteFile());
-      setModal(true);
-      add(button); 
-      setSize(300, 70);
-      setLocationRelativeTo(App.component());
-      setVisible(true);
-    }
-
-    private ActionListener deleteFile() {
-      return event -> {
-        try {
-          var path = Paths.get(Config.notes(), filename);
-          Files.deleteIfExists(path);
-          setVisible(false);
-          dispose();
-          refresh();
-          expandFileName(filename, true);
-        } catch (Exception exc) {
-          throw new RuntimeException(exc);
-        }
-      };
-    }
-  }
-
-  class RenameDialog extends JDialog {
-    private String filename;
-
-    public RenameDialog(String filename) {
-      this.filename = filename;
-      setTitle("Rename " + filename);
-      var textField = new JTextField(filename);
-      textField.addActionListener(renameFile());
-      setModal(true);
-      add(textField); 
-      setSize(300, 70);
-      setLocationRelativeTo(App.component());
-      setVisible(true);
-    }
-
-    private ActionListener renameFile() {
-      return event -> {
-        try {
-          var source = Paths.get(Config.notes(), filename);
-          var newFileName = ((JTextField) event.getSource()).getText();
-          var target = Paths.get(Config.notes(), newFileName);
-          while (Files.exists(target)) {
-            newFileName = newFileName + "_copy";
-            target = Paths.get(Config.notes(), newFileName);
-          }
-          Files.move(source, target);
-          setVisible(false);
-          dispose();
-          refresh();
-          expandFileName(filename, true);
-        } catch (Exception exc) {
-          throw new RuntimeException(exc);
-        }
-      };
-    }
   }
 }

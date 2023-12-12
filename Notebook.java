@@ -1,76 +1,75 @@
+import java.io.*;
+import java.nio.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.stream.*;
+import javax.swing.*;
+
 public class Notebook {
 
-  public class Note {
-    private Path path;
-
-    public static Note ofFullName(String fullName) {
-      return new Note(Paths.get(Config.notes(), fullName + ".md")); 
-    }
-
-    public Note(Path path) {
-      this.path = path;
-    }
-    
-    pubilc String getShortName() {
-      var fullName = getFullName();
-      var parts = fullName.split(".");
-      return parts[parts.length - 1];
-    }
-
-    public String getFullName() {
-      var fileName = getFileName();
-      if (fileName.endsWith("*.md")) {
-        return fileName.substring(0, fileName.lastIndexOf(".md"));
-      }
-      throw new RuntimeException("FileName not ending with .md: " + fileName);
-    }
-
-    public String getFileName() {
-      return path.getFileName();
-    }
-
-    public Path getPath() {
-      return path;
+  public List<Note> listNotes() {
+    try {
+      return Files.list(Paths.get(Config.notes()))
+                  .sorted(Comparator.comparing(Path::toString))
+                  .map(Note::new)
+                  .collect(Collectors.toList());
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
     }
   }
 
-  public List<Notes> listNotes() {
-    return Files
-      .list(Paths.get(Config.notes()))
-      .sorted()
-      .collect(Collectors.toList());
-  }
-
-  public void newNote() {
+  public Optional<Note> newNote() {
     try {
       var fullName = JOptionPane.showInputDialog(App.component(), "Name:", "New note");
       if (fullName == null || "".equals(fullName.strip())) {
-        return;
+        return Optional.empty();
       }
       var note = Note.ofFullName(fullName);
-      while (Files.exist(note.getPath)) {
+      while (Files.exists(note.getPath())) {
         note = Note.ofFullName(fullName + "_new");
       }
       Files.createFile(note.getPath());
+      return Optional.of(note);
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
   }
 
   public void deleteNote(Note note) {
-    var delete = 
-      JOptionPane.showConfirmDialog(
-          App.component() 
-          "Delete?", 
-          "Delete note", 
-          JOptionPane.YES_NO_OPTION);
-    if (delete) {
-      Files.deleteIfExists(note.getPath());
+    try {
+      var answer = 
+        JOptionPane.showConfirmDialog(
+            App.component(),
+            "Delete?", 
+            "Delete note", 
+            JOptionPane.YES_NO_OPTION);
+      if (answer == JOptionPane.YES_OPTION) {
+        Files.deleteIfExists(note.getPath());
+      }
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
     }
   }
 
   public void renameNote(Note note) {
-    
+    try {
+      var fullName = 
+        (String) JOptionPane.showInputDialog(
+            App.component(), 
+            "Name:",
+            "Rename note",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            null, 
+            note.getFullName()) ;
+      note = Note.ofFullName(fullName);
+      while (Files.exists(note.getPath())) {
+        note = Note.ofFullName(note.getFullName() + "_rename");
+      }
+      Files.createFile(note.getPath());
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
+    }
   }
 
 }

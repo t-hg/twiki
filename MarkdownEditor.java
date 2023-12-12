@@ -9,7 +9,7 @@ import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
 public class MarkdownEditor extends JTextPane implements Editor {
-  private String filename;
+  private Note note;
   private UnsavedChangesTracker unsavedChangesTracker;
 
   public MarkdownEditor() {
@@ -33,13 +33,13 @@ public class MarkdownEditor extends JTextPane implements Editor {
     Editor.onSearch(this, searchString);
   }
 
-  public void onFileSelected(String name) {
+  public void onNoteSelected(Note note) {
     try {
       if (hasUnsavedChanges() && MessageDialogs.unsavedChanges(this) != 0) {
         return;
       }
-      filename = name;
-      var path = Paths.get(Config.notes(), name);
+      this.note = note;
+      var path = note.getPath();
       if (!Files.exists(path)) {
         return;
       }
@@ -57,10 +57,10 @@ public class MarkdownEditor extends JTextPane implements Editor {
   private ActionListener save() {
     return event -> {
       try {
-        if (filename == null) {
+        if (note == null) {
           return;
         }
-        var writer = Files.newBufferedWriter(Paths.get(Config.notes(), filename));
+        var writer = Files.newBufferedWriter(note.getPath());
         writer.write(getText());
         writer.flush();
         writer.close();
@@ -73,10 +73,10 @@ public class MarkdownEditor extends JTextPane implements Editor {
   
   private ActionListener refresh() {
     return event -> {
-      if (filename == null) {
+      if (note == null) {
         return;
       }
-      onFileSelected(filename);
+      onNoteSelected(note);
     };
   }
 

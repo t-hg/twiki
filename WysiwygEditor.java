@@ -20,7 +20,7 @@ import javax.swing.undo.*;
 import static javax.swing.JComponent.WHEN_FOCUSED;
 
 public class WysiwygEditor extends JTextPane implements Editor {
-  private String filename;
+  private Note note;
   private UnsavedChangesTracker unsavedChangesTracker;
 
   public WysiwygEditor() {
@@ -88,12 +88,12 @@ public class WysiwygEditor extends JTextPane implements Editor {
     Editor.onSearch(this, searchString);
   }
 
-  public void onFileSelected(String name) {
+  public void onNoteSelected(Note note) {
     if (hasUnsavedChanges() && MessageDialogs.unsavedChanges(this) != 0) {
       return;
     }
-    filename = name;
-    setText(Pandoc.markdownToHtml(name));
+    this.note = note;
+    setText(Pandoc.markdownToHtml(note));
     unsavedChangesTracker.reset();
   }
 
@@ -119,7 +119,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
         }
         var image = (BufferedImage) content.getTransferData(DataFlavor.imageFlavor);
         var attachments = Paths.get(Config.attachments());
-        var imageFileName = filename + "_" + System.currentTimeMillis() + ".png";
+        var imageFileName = note.getFullName() + "_" + System.currentTimeMillis() + ".png";
         var imageFile = Paths.get(attachments.toString(), imageFileName);
         ImageIO.write(image, "png", imageFile.toFile());
         var html = "<p><img src=\"../attachments/"+imageFileName+"\"></p>";
@@ -317,20 +317,20 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
   private ActionListener save() {
     return event -> {
-      if (filename == null) {
+      if (note == null) {
         return;
       }
-      Pandoc.htmlToMarkdown(filename, getText());
+      Pandoc.htmlToMarkdown(note, getText());
       unsavedChangesTracker.reset();
     };
   }
 
   private ActionListener refresh() {
     return event -> {
-      if (filename == null) {
+      if (note == null) {
         return;
       }
-      onFileSelected(filename);
+      onNoteSelected(note);
     };
   }
 

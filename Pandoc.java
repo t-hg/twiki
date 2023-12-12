@@ -7,14 +7,14 @@ import java.util.stream.*;
 import java.util.concurrent.*;
 
 public class Pandoc {
-  public static void htmlToMarkdown(String filename, String text) {
+  public static void htmlToMarkdown(Note note, String text) {
     try {
       var process = 
         new ProcessBuilder(
             Config.pandoc(), 
             "-f", "html", 
             "-t", "markdown",
-            "-o", Paths.get(Config.notes(), filename).toString())
+            "-o", note.getPath().toString())
         .redirectError(ProcessBuilder.Redirect.INHERIT)
         .start();
       var outputWriter = process.outputWriter(StandardCharsets.UTF_8);
@@ -34,9 +34,9 @@ public class Pandoc {
     }
   }
 
-  public static String markdownToHtml(String filename) {
+  public static String markdownToHtml(Note note) {
     try {
-      var path = Paths.get(Config.notes(), filename);
+      var path = note.getPath();
       if (!Files.exists(path)) {
         return "";
       }

@@ -4,14 +4,10 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 public class FileTabs extends JTabbedPane {
-  private record Tab(String filename, EditorTabs editorTabs) {
-    public String getTitle() {
-      var parts = filename.split("\\.");
-      return parts[parts.length - 1];
-    }
+  private record Tab(Note note, EditorTabs editorTabs) {
   }
 
-  private String filename;
+  private Note note;
   private List<Tab> tabs = new ArrayList<>();
 
   public FileTabs() {
@@ -19,30 +15,32 @@ public class FileTabs extends JTabbedPane {
   }
 
   public void onSearch(String searchString) {
-    Tab tab = tabs.stream()
-                  .filter(it -> it.filename().equals(filename))
-                  .findFirst()
-                  .orElse(null);
+    Tab tab = 
+      tabs.stream()
+          .filter(it -> it.note().equals(note))
+          .findFirst()
+          .orElse(null);
     if (tab != null) {
       tab.editorTabs().onSearch(searchString);
     }
   }
 
-  public void onFileSelected(String name) {
-    filename = name;
-    Tab tab = tabs.stream()
-                  .filter(it -> it.filename().equals(filename))
-                  .findFirst()
-                  .orElse(null);
+  public void onNoteSelected(Note note) {
+    this.note = note;
+    Tab tab = 
+      tabs.stream()
+          .filter(it -> it.note().equals(note))
+          .findFirst()
+          .orElse(null);
     if(tab != null) {
-      tab.editorTabs().onFileSelected(filename);
+      tab.editorTabs().onNoteSelected(note);
       setSelectedComponent(tab.editorTabs()); 
     } else {
       var editorTabs = new EditorTabs();
-      tab = new Tab(filename, editorTabs);
+      tab = new Tab(note, editorTabs);
       tabs.add(tab);
-      editorTabs.onFileSelected(filename);
-      add(tab.getTitle(), editorTabs);
+      editorTabs.onNoteSelected(note);
+      add(tab.note().getShortName(), editorTabs);
       setSelectedComponent(editorTabs); 
     }
   }

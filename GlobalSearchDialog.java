@@ -10,7 +10,7 @@ public class GlobalSearchDialog extends JDialog {
   private JTextField searchField;
   private JTable table;
   private ResultTableModel tableModel;
-  private java.util.List<Consumer<String>> fileSelectionListeners = new ArrayList<>();
+  private java.util.List<Consumer<Note>> noteSelectionListeners = new ArrayList<>();
 
   public GlobalSearchDialog() {
     searchField = new JTextField("Search...");
@@ -22,7 +22,7 @@ public class GlobalSearchDialog extends JDialog {
     tableModel = new ResultTableModel();
     table = new JTable(tableModel);
     table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    table.getSelectionModel().addListSelectionListener(openFile());
+    table.getSelectionModel().addListSelectionListener(openNote());
     add(new JScrollPane(table), BorderLayout.CENTER);
     setModal(false);
     setSize(400, 300);
@@ -39,8 +39,8 @@ public class GlobalSearchDialog extends JDialog {
     return searchField.getText();
   }
 
-  public void addFileSelectionListener(Consumer<String> listener) {
-    fileSelectionListeners.add(listener);
+  public void addNoteSelectionListener(Consumer<Note> listener) {
+    noteSelectionListeners.add(listener);
   }
 
   private ActionListener close() {
@@ -65,12 +65,12 @@ public class GlobalSearchDialog extends JDialog {
       tableModel.setRowCount(0);
       Ripgrep.search(searchString)
              .stream()
-             .forEach(result -> tableModel.addRow(new Object[]{result.filename(), result.count()}));
+             .forEach(result -> tableModel.addRow(new Object[]{result.note().getFullName(), result.count()}));
       textField.select(0, textField.getText().length());
     };
   }
 
-  private ListSelectionListener openFile() {
+  private ListSelectionListener openNote() {
     return new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent event) {
         if (event.getValueIsAdjusting()) {
@@ -81,8 +81,9 @@ public class GlobalSearchDialog extends JDialog {
           return;
         }
         int modelRow = table.convertRowIndexToModel(viewRow);
-        var filename = tableModel.getValueAt(modelRow, 0).toString();
-        fileSelectionListeners.forEach(listener -> listener.accept(filename));
+        var fullName = tableModel.getValueAt(modelRow, 0).toString();
+        var note = Note.ofFullName(fullName);
+        noteSelectionListeners.forEach(listener -> listener.accept(note));
       }
     };
   }

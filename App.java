@@ -38,7 +38,7 @@ public class App extends JFrame {
     editorPanel.add(fileTabs, BorderLayout.CENTER);
     editorPanel.add(toolBar, BorderLayout.SOUTH);
     var fileTree = new FileTree();
-    fileTree.addSelectionListener(fileTabs::onFileSelected);
+    fileTree.addSelectionListener(fileTabs::onNoteSelected);
     var splitPane = 
       new JSplitPane(
         JSplitPane.HORIZONTAL_SPLIT, true,
@@ -96,11 +96,11 @@ public class App extends JFrame {
       globalSearchDialog.setLocationRelativeTo(App.this);
       globalSearchDialog.setVisible(true);
       globalSearchDialog.grabFocus();
-      globalSearchDialog.addFileSelectionListener(filename -> {
+      globalSearchDialog.addNoteSelectionListener(note -> {
         var searchString = globalSearchDialog.getSearchString();
         toolBar.setVisible(true);
         toolBar.setSearchString(searchString);
-        fileTabs.onFileSelected(filename);
+        fileTabs.onNoteSelected(note);
         fileTabs.onSearch(searchString);
       });
     };

@@ -8,7 +8,7 @@ public class EditorTabs extends JTabbedPane {
   private HtmlEditor htmlEditor = new HtmlEditor();
   private MarkdownEditor markdownEditor = new MarkdownEditor();
 
-  private String filename;
+  private Note note;
 
   public EditorTabs() {
     super(JTabbedPane.BOTTOM);
@@ -29,11 +29,11 @@ public class EditorTabs extends JTabbedPane {
     markdownEditor.onSearch(searchString);
   }
 
-  public void onFileSelected(String name) {
-    this.filename = name;
-    wysiwygEditor.onFileSelected(name);
-    htmlEditor.onFileSelected(name);
-    markdownEditor.onFileSelected(name);
+  public void onNoteSelected(Note note) {
+    this.note = note;
+    wysiwygEditor.onNoteSelected(note);
+    htmlEditor.onNoteSelected(note);
+    markdownEditor.onNoteSelected(note);
   }
 
   public boolean hasUnsavedChanges() {
@@ -46,7 +46,7 @@ public class EditorTabs extends JTabbedPane {
     return event -> {
       var scrollPane = (JScrollPane) getSelectedComponent();
       var editor = (Editor) scrollPane.getViewport().getView();
-      editor.onFileSelected(filename);
+      editor.onNoteSelected(note);
     };
   }
 
