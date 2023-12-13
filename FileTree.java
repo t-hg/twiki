@@ -24,6 +24,7 @@ public class FileTree extends JTree {
     registerKeyboardAction(showRenameDialog(), KeyStrokes.F2, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(triggerRefresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(triggerClearSelection(), KeyStrokes.ESC, JComponent.WHEN_FOCUSED);
+    setToggleClickCount(-1);
   }
 
   private MouseListener mouseListenerOnSelected() {
@@ -33,7 +34,11 @@ public class FileTree extends JTree {
         if (path == null) return;
         setSelectionPath(path);
         if (event.getClickCount() > 1) {
-          expandPath(path);
+          if (isExpanded(path)) {
+            collapsePath(path);
+          } else {
+            expandPath(path);
+          }
         }
       }
     };
