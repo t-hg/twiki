@@ -73,8 +73,7 @@ public class HtmlEditor extends JTextPane implements Editor {
     return event -> {
       try {
         undoManager.undo();
-      } catch (Exception exc) {
-        throw new RuntimeException(exc);
+      } catch (CannotUndoException exc) {
       }
     };
   }
@@ -83,8 +82,7 @@ public class HtmlEditor extends JTextPane implements Editor {
     return event -> {
       try {
         undoManager.redo();
-      } catch (Exception exc) {
-        throw new RuntimeException(exc);
+      } catch (CannotRedoException exc) {
       }
     };
   }
