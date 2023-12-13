@@ -23,6 +23,7 @@ public class GlobalSearchDialog extends JDialog {
     table = new JTable(tableModel);
     table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     table.getSelectionModel().addListSelectionListener(openNote());
+    table.getColumnModel().getColumn(0).setPreferredWidth(400);
     add(new JScrollPane(table), BorderLayout.CENTER);
     setModal(false);
     setSize(400, 300);
