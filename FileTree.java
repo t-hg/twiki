@@ -17,11 +17,39 @@ public class FileTree extends JTree {
     refresh();
     expandRow(0);
     setRootVisible(false);
-    addTreeSelectionListener(onSelected());
+    addMouseListener(mouseListenerOnSelected());
+    addTreeSelectionListener(treeSelectionListenerOnSelected());
     registerKeyboardAction(showNewDialog(), KeyStrokes.CTRL_N, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(showDeleteDialog(), KeyStrokes.DEL, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(showRenameDialog(), KeyStrokes.F2, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(triggerRefresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(triggerClearSelection(), KeyStrokes.ESC, JComponent.WHEN_FOCUSED);
+  }
+
+  private MouseListener mouseListenerOnSelected() {
+    return new MouseAdapter() {
+      public void mouseReleased(MouseEvent event) {
+        var path = getClosestPathForLocation(event.getX(), event.getY());
+        if (path == null) return;
+        setSelectionPath(path);
+        if (event.getClickCount() > 1) {
+          expandPath(path);
+        }
+      }
+    };
+  }
+  
+  private TreeSelectionListener treeSelectionListenerOnSelected() {
+    return event -> {
+      var path = event.getPath();
+      var fullName = getFullName(path);
+      var note = Note.ofFullName(fullName);
+      selectionListeners.forEach(listener -> listener.accept(note));
+    };
+  }
+
+  private ActionListener triggerClearSelection() {
+    return event -> clearSelection();
   }
 
   private ActionListener triggerRefresh() {
@@ -78,15 +106,6 @@ public class FileTree extends JTree {
       names.add(name);
     }
     return String.join(".", names);
-  }
-
-  private TreeSelectionListener onSelected() {
-    return event -> {
-      var path = event.getPath();
-      var fullName = getFullName(path);
-      var note = Note.ofFullName(fullName);
-      selectionListeners.forEach(listener -> listener.accept(note));
-    };
   }
 
   private void expandFileName(Note note, boolean select) {
