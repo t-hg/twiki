@@ -1,3 +1,5 @@
+import java.awt.*;
+import javax.swing.border.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.function.*;
@@ -6,18 +8,20 @@ import javax.swing.event.*;
 
 public class ToolBar extends JToolBar {
   private JTextField searchField;
-  private List<Consumer<String>> searchListeners = new ArrayList<>();
+  private java.util.List<Consumer<String>> searchListeners = new ArrayList<>();
 
   public ToolBar() {
     searchField = new JTextField("Search...");
     searchField.addFocusListener(selectAll());
     searchField.setColumns(12);
+    searchField.setMaximumSize(new Dimension(100, Integer.MAX_VALUE));
     searchField.addActionListener(search());
     add(Box.createHorizontalGlue());
     add(searchField);
+    setBorder(new EmptyBorder(5, 5, 5, 5));
     setFloatable(false);
-    addMouseListener(hideBar());
     setVisible(false);
+    addMouseListener(hideBar());
   }
 
   public void setSearchString(String searchString) {
