@@ -6,47 +6,41 @@ body {
 h1 {
   font-size: 22pt;
   font-weight: bold;
-  margin-top: 10px;
   margin-bottom: 10px;
 }
 
 h2 {
   font-size: 20pt;
   font-weight: bold;
-  margin-top: 10px;
   margin-bottom: 10px;
 }
 
 h3 {
   font-size: 18pt;
   font-weight: bold;
-  margin-top: 10px;
   margin-bottom: 10px;
 }
 
 h4 {
   font-size: 16pt;
   font-weight: bold;
-  margin-top: 10px;
   margin-bottom: 10px;
 }
 
 h5 {
   font-size: 14pt;
   font-weight: bold;
-  margin-top: 10px;
   margin-bottom: 10px;
 }
 
 h6 {
   font-size: 12pt;
   font-weight: bold;
-  margin-top: 10px;
   margin-bottom: 10px;
 }
 
 p {
-  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 div.info p {
@@ -65,7 +59,7 @@ a {
 }
 
 pre {
-  margin-top: 10px;
+  margin-bottom: 10px;
   background-color: #ddd;  
   font-family: monospace;
   padding: 10px;
@@ -89,35 +83,35 @@ u {
 }
 
 ul {
-  margin-top: 10px;
+  margin-bottom: 10px;
   margin-left: 20px;
   list-style-type: disc;
 }
 
 ul ul {
-  margin-top: 0;
+  margin-bottom: 0;
 }
 
 ul ol {
-  margin-top: 0;
+  margin-bottom: 0;
 }
 
 ol {
-  margin-top: 10px;
+  margin-bottom: 10px;
   margin-left: 20px;
   list-style-type: decimal;
 }
 
 ol ol {
-  margin-top: 0;
+  margin-bottom: 0;
 }
 
 ol ul {
-  margin-top: 0;
+  margin-bottom: 0;
 }
 
 table {
-  margin-top: 10px;
+  margin-bottom: 10px;
   background-color: #aaa;
   border-spacing: 1;
 }
