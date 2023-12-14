@@ -23,10 +23,10 @@ public class EditorTabs extends JTabbedPane {
     return new JScrollPane(component);
   }
 
-  public void onSearch(String searchString) {
-    wysiwygEditor.onSearch(searchString);
-    htmlEditor.onSearch(searchString);
-    markdownEditor.onSearch(searchString);
+  public void search(String searchString) {
+    wysiwygEditor.search(searchString);
+    htmlEditor.search(searchString);
+    markdownEditor.search(searchString);
   }
 
   public void openNote(Note note) {

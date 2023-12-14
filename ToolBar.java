@@ -8,7 +8,6 @@ import javax.swing.event.*;
 
 public class ToolBar extends JToolBar {
   private JTextField searchField;
-  private java.util.List<Consumer<String>> searchListeners = new ArrayList<>();
 
   public ToolBar() {
     searchField = new JTextField("Search...");
@@ -32,15 +31,11 @@ public class ToolBar extends JToolBar {
     searchField.grabFocus();
   }
 
-  public void addSearchListener(Consumer<String> searchListener) {
-    searchListeners.add(searchListener);
-  }
-
   private ActionListener search() {
     return event -> {
       var textField = (JTextField) event.getSource();
       var searchString = textField.getText();
-      searchListeners.forEach(listener -> listener.accept(searchString));
+      App.instance().getFileTabs().search(searchString);
       textField.select(0, textField.getText().length());
     };
   }
@@ -59,6 +54,8 @@ public class ToolBar extends JToolBar {
       public void mouseReleased(MouseEvent event) {
         if (SwingUtilities.isMiddleMouseButton(event)) {
           setVisible(false);
+          setSearchString("");
+          App.instance().getFileTabs().search("");
         }
       }
     };

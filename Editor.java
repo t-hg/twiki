@@ -3,11 +3,11 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 public interface Editor {
-  void onSearch(String searchString);
+  void search(String searchString);
   void openNote(Note note);
   boolean hasUnsavedChanges();
 
-  static void onSearch(JTextPane textPane, String searchString) {
+  static void search(JTextPane textPane, String searchString) {
     try {
       var highlighter = textPane.getHighlighter();
       highlighter.removeAllHighlights();

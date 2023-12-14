@@ -29,8 +29,8 @@ public class HtmlEditor extends JTextPane implements Editor {
     registerKeyboardAction(this.redo(undoManager), KeyStrokes.CTRL_Y, JComponent.WHEN_FOCUSED);
   }
   
-  public void onSearch(String searchString) {
-    Editor.onSearch(this, searchString);
+  public void search(String searchString) {
+    Editor.search(this, searchString);
   }
 
   public void openNote(Note note) {

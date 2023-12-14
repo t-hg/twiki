@@ -14,14 +14,14 @@ public class FileTabs extends JTabbedPane {
     addMouseListener(removeTab());
   }
 
-  public void onSearch(String searchString) {
+  public void search(String searchString) {
     Tab tab = 
       tabs.stream()
           .filter(it -> it.note().equals(note))
           .findFirst()
           .orElse(null);
     if (tab != null) {
-      tab.editorTabs().onSearch(searchString);
+      tab.editorTabs().search(searchString);
     }
   }
 

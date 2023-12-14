@@ -86,8 +86,8 @@ public class WysiwygEditor extends JTextPane implements Editor {
     }
   }
 
-  public void onSearch(String searchString) {
-    Editor.onSearch(this, searchString);
+  public void search(String searchString) {
+    Editor.search(this, searchString);
   }
 
   public void openNote(Note note) {

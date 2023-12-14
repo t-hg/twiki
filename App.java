@@ -34,7 +34,6 @@ public class App extends JFrame {
     setSize(1280, 720);
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     setLayout(new BorderLayout());
-    toolBar.addSearchListener(fileTabs::onSearch);
     var editorPanel = new JPanel();
     editorPanel.setLayout(new BorderLayout());
     editorPanel.add(fileTabs, BorderLayout.CENTER);
@@ -98,19 +97,16 @@ public class App extends JFrame {
   public FileTabs getFileTabs() {
     return fileTabs;
   }
+  
+  public ToolBar getToolBar() {
+    return toolBar;
+  }
 
   private ActionListener globalSearch() {
     return event -> {
       globalSearchDialog.setLocationRelativeTo(App.this);
       globalSearchDialog.setVisible(true);
       globalSearchDialog.grabFocus();
-      globalSearchDialog.addNoteSelectionListener(note -> {
-        var searchString = globalSearchDialog.getSearchString();
-        toolBar.setVisible(true);
-        toolBar.setSearchString(searchString);
-        fileTree.selectNote(note);
-        fileTabs.onSearch(searchString);
-      });
     };
   }
 

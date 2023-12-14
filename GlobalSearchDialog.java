@@ -10,7 +10,6 @@ public class GlobalSearchDialog extends JDialog {
   private JTextField searchField;
   private JTable table;
   private ResultTableModel tableModel;
-  private java.util.List<Consumer<Note>> noteSelectionListeners = new ArrayList<>();
 
   public GlobalSearchDialog() {
     searchField = new JTextField("Search...");
@@ -38,10 +37,6 @@ public class GlobalSearchDialog extends JDialog {
 
   public String getSearchString() {
     return searchField.getText();
-  }
-
-  public void addNoteSelectionListener(Consumer<Note> listener) {
-    noteSelectionListeners.add(listener);
   }
 
   private ActionListener close() {
@@ -84,7 +79,11 @@ public class GlobalSearchDialog extends JDialog {
         int modelRow = table.convertRowIndexToModel(viewRow);
         var fullName = tableModel.getValueAt(modelRow, 0).toString();
         var note = Note.ofFullName(fullName);
+        var searchString = searchField.getText();
+        App.instance().getToolBar().setVisible(true);
+        App.instance().getToolBar().setSearchString(searchString);
         App.instance().getFileTree().selectNote(note);
+        App.instance().getFileTabs().search(searchString);
       }
     };
   }
