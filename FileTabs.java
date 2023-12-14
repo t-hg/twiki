@@ -25,7 +25,7 @@ public class FileTabs extends JTabbedPane {
     }
   }
 
-  public void onNoteSelected(Note note) {
+  public void openNote(Note note) {
     this.note = note;
     Tab tab = 
       tabs.stream()
@@ -33,13 +33,13 @@ public class FileTabs extends JTabbedPane {
           .findFirst()
           .orElse(null);
     if(tab != null) {
-      tab.editorTabs().onNoteSelected(note);
+      tab.editorTabs().openNote(note);
       setSelectedComponent(tab.editorTabs()); 
     } else {
       var editorTabs = new EditorTabs();
       tab = new Tab(note, editorTabs);
       tabs.add(tab);
-      editorTabs.onNoteSelected(note);
+      editorTabs.openNote(note);
       add(tab.note().getShortName(), editorTabs);
       setSelectedComponent(editorTabs); 
     }

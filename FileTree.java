@@ -11,7 +11,6 @@ import javax.swing.tree.*;
 public class FileTree extends JTree {
 
   private Notebook notebook = new Notebook();
-  private java.util.List<Consumer<Note>> selectionListeners = new ArrayList<>();
 
   public FileTree() {
     refresh();
@@ -25,6 +24,10 @@ public class FileTree extends JTree {
     registerKeyboardAction(triggerRefresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(triggerClearSelection(), KeyStrokes.ESC, JComponent.WHEN_FOCUSED);
     setToggleClickCount(-1);
+  }
+
+  public void selectNote(Note note) {
+    expandNote(note, true);
   }
 
   private MouseListener mouseListenerOnSelected() {
@@ -49,7 +52,7 @@ public class FileTree extends JTree {
       var path = event.getPath();
       var fullName = getFullName(path);
       var note = Note.ofFullName(fullName);
-      selectionListeners.forEach(listener -> listener.accept(note));
+      App.instance().getFileTabs().openNote(note);
     };
   }
 
@@ -82,7 +85,7 @@ public class FileTree extends JTree {
       var treePath = expanded.nextElement();
       var fullName = getFullName(treePath);
       var note = Note.ofFullName(fullName);
-      expandFileName(note, false);
+      expandNote(note, false);
     }
   }
 
@@ -97,10 +100,6 @@ public class FileTree extends JTree {
     return null;
   }
 
-  public void addSelectionListener(Consumer<Note> listener) {
-    selectionListeners.add(listener);
-  }
-
   private String getFullName(TreePath path) {
     var names = new ArrayList<String>();
     for(var part : path.getPath()) {
@@ -113,7 +112,7 @@ public class FileTree extends JTree {
     return String.join(".", names);
   }
 
-  private void expandFileName(Note note, boolean select) {
+  private void expandNote(Note note, boolean select) {
     var fullName = note.getFullName();
     var parts = fullName.split("\\.");
     var stack = new Stack<String>();
@@ -144,7 +143,7 @@ public class FileTree extends JTree {
         .newNote()
         .ifPresent(note -> {
           refresh();
-          expandFileName(note, true);
+          expandNote(note, true);
         });
     };
   }

@@ -4,7 +4,7 @@ import javax.swing.text.*;
 
 public interface Editor {
   void onSearch(String searchString);
-  void onNoteSelected(Note note);
+  void openNote(Note note);
   boolean hasUnsavedChanges();
 
   static void onSearch(JTextPane textPane, String searchString) {

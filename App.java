@@ -19,12 +19,14 @@ public class App extends JFrame {
   }
   
   private FileTabs fileTabs;
+  private FileTree fileTree;
   private ToolBar toolBar;
   private GlobalSearchDialog globalSearchDialog;
   
   public App() {
     Config.load();
     fileTabs = new FileTabs();
+    fileTree = new FileTree();
     toolBar = new ToolBar();
     globalSearchDialog = new GlobalSearchDialog();
     setIconImage(new ImageIcon(getClass().getResource("icon.png")).getImage());
@@ -37,8 +39,6 @@ public class App extends JFrame {
     editorPanel.setLayout(new BorderLayout());
     editorPanel.add(fileTabs, BorderLayout.CENTER);
     editorPanel.add(toolBar, BorderLayout.SOUTH);
-    var fileTree = new FileTree();
-    fileTree.addSelectionListener(fileTabs::onNoteSelected);
     var splitPane = 
       new JSplitPane(
         JSplitPane.HORIZONTAL_SPLIT, true,
@@ -91,6 +91,14 @@ public class App extends JFrame {
         JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
   }
 
+  public FileTree getFileTree() {
+    return fileTree;
+  }
+
+  public FileTabs getFileTabs() {
+    return fileTabs;
+  }
+
   private ActionListener globalSearch() {
     return event -> {
       globalSearchDialog.setLocationRelativeTo(App.this);
@@ -100,7 +108,7 @@ public class App extends JFrame {
         var searchString = globalSearchDialog.getSearchString();
         toolBar.setVisible(true);
         toolBar.setSearchString(searchString);
-        fileTabs.onNoteSelected(note);
+        fileTree.selectNote(note);
         fileTabs.onSearch(searchString);
       });
     };

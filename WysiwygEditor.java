@@ -90,7 +90,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
     Editor.onSearch(this, searchString);
   }
 
-  public void onNoteSelected(Note note) {
+  public void openNote(Note note) {
     if (hasUnsavedChanges() && MessageDialogs.unsavedChanges(this) != 0) {
       return;
     }
@@ -332,7 +332,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       if (note == null) {
         return;
       }
-      onNoteSelected(note);
+      openNote(note);
     };
   }
 
@@ -479,7 +479,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
           } else if (href.startsWith("./")) {
             var fullName = href.substring(2);
             var note = Note.ofFullName(fullName);
-            System.out.println("TODO");
+            App.instance().getFileTree().selectNote(note);
           }
         } catch (Exception exc) {
           throw new RuntimeException(exc);

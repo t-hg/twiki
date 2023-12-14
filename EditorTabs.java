@@ -29,11 +29,11 @@ public class EditorTabs extends JTabbedPane {
     markdownEditor.onSearch(searchString);
   }
 
-  public void onNoteSelected(Note note) {
+  public void openNote(Note note) {
     this.note = note;
-    wysiwygEditor.onNoteSelected(note);
-    htmlEditor.onNoteSelected(note);
-    markdownEditor.onNoteSelected(note);
+    wysiwygEditor.openNote(note);
+    htmlEditor.openNote(note);
+    markdownEditor.openNote(note);
   }
 
   public boolean hasUnsavedChanges() {
@@ -46,7 +46,7 @@ public class EditorTabs extends JTabbedPane {
     return event -> {
       var scrollPane = (JScrollPane) getSelectedComponent();
       var editor = (Editor) scrollPane.getViewport().getView();
-      editor.onNoteSelected(note);
+      editor.openNote(note);
     };
   }
 

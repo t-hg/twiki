@@ -84,7 +84,7 @@ public class GlobalSearchDialog extends JDialog {
         int modelRow = table.convertRowIndexToModel(viewRow);
         var fullName = tableModel.getValueAt(modelRow, 0).toString();
         var note = Note.ofFullName(fullName);
-        noteSelectionListeners.forEach(listener -> listener.accept(note));
+        App.instance().getFileTree().selectNote(note);
       }
     };
   }

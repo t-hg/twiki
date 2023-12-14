@@ -33,7 +33,7 @@ public class MarkdownEditor extends JTextPane implements Editor {
     Editor.onSearch(this, searchString);
   }
 
-  public void onNoteSelected(Note note) {
+  public void openNote(Note note) {
     try {
       if (hasUnsavedChanges() && MessageDialogs.unsavedChanges(this) != 0) {
         return;
@@ -76,7 +76,7 @@ public class MarkdownEditor extends JTextPane implements Editor {
       if (note == null) {
         return;
       }
-      onNoteSelected(note);
+      openNote(note);
     };
   }
 
