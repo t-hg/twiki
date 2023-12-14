@@ -1,40 +1,40 @@
 body {
-  font-size: 12pt;
+  font-size: 14pt;
   padding: 10px;
 }
 
 h1 {
-  font-size: 22pt;
+  font-size: 24pt;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 h2 {
-  font-size: 20pt;
+  font-size: 22pt;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 h3 {
-  font-size: 18pt;
+  font-size: 20pt;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 h4 {
-  font-size: 16pt;
+  font-size: 18pt;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 h5 {
-  font-size: 14pt;
+  font-size: 16pt;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 h6 {
-  font-size: 12pt;
+  font-size: 14pt;
   font-weight: bold;
   margin-bottom: 10px;
 }

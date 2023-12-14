@@ -18,9 +18,17 @@ public class Notebook {
     }
   }
 
-  public Optional<Note> newNote() {
+  public Optional<Note> newNote(Note parent) {
     try {
-      var fullName = JOptionPane.showInputDialog(App.instance(), "Name:", "New note");
+      var fullName =
+        (String) JOptionPane.showInputDialog(
+            App.instance(), 
+            "Name:",
+            "New note",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            null, 
+            parent != null ? parent.getFullName() : "");
       if (fullName == null || "".equals(fullName.strip())) {
         return Optional.empty();
       }

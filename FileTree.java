@@ -139,8 +139,13 @@ public class FileTree extends JTree {
 
   private ActionListener showNewDialog() {
     return event -> {
+      var parent =
+        Optional.ofNullable(getSelectionPath())
+                .map(path -> getFullName(path))
+                .map(Note::ofFullName)
+                .orElse(null);
       notebook
-        .newNote()
+        .newNote(parent)
         .ifPresent(note -> {
           refresh();
           expandNote(note, true);
