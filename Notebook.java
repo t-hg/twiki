@@ -20,7 +20,7 @@ public class Notebook {
 
   public Optional<Note> newNote() {
     try {
-      var fullName = JOptionPane.showInputDialog(App.component(), "Name:", "New note");
+      var fullName = JOptionPane.showInputDialog(App.instance(), "Name:", "New note");
       if (fullName == null || "".equals(fullName.strip())) {
         return Optional.empty();
       }
@@ -39,7 +39,7 @@ public class Notebook {
     try {
       var answer = 
         JOptionPane.showConfirmDialog(
-            App.component(),
+            App.instance(),
             "Delete?", 
             "Delete note", 
             JOptionPane.YES_NO_OPTION);
@@ -55,7 +55,7 @@ public class Notebook {
     try {
       var fullName = 
         (String) JOptionPane.showInputDialog(
-            App.component(), 
+            App.instance(), 
             "Name:",
             "Rename note",
             JOptionPane.PLAIN_MESSAGE,

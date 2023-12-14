@@ -5,17 +5,17 @@ import javax.swing.border.*;
 import java.io.*;
 
 public class App extends JFrame {
-  private static Component component;
+  private static App instance;
 
   public static void main(String[] args) throws Exception {
     //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     SwingUtilities.invokeLater(() -> {
-      component = new App();
+      instance = new App();
     });
   }
 
-  public static Component component() {
-    return App.component;
+  public static App instance() {
+    return App.instance;
   }
   
   private FileTabs fileTabs;

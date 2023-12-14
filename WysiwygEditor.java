@@ -201,7 +201,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
       var option = 
         JOptionPane.showConfirmDialog(
-            App.component(), 
+            App.instance(), 
             message, 
             "Insert table", 
             JOptionPane.OK_CANCEL_OPTION,
@@ -448,7 +448,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       dialog.add(scrollPane, BorderLayout.CENTER);
       dialog.setModal(true);
       dialog.pack();
-      dialog.setLocationRelativeTo(App.component());
+      dialog.setLocationRelativeTo(App.instance());
       dialog.setVisible(true);
     };
   }
