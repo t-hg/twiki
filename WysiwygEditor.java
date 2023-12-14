@@ -52,6 +52,8 @@ public class WysiwygEditor extends JTextPane implements Editor {
 
       ((HTMLDocument) getDocument()).setBase(Paths.get(Config.notes()).toFile().toURI().toURL());
 
+      addMouseListener(followHyperlinks());
+
       registerKeyboardAction(getActionMap().get("font-bold"), KeyStrokes.CTRL_B, WHEN_FOCUSED);
       registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, WHEN_FOCUSED);
       registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, WHEN_FOCUSED);
@@ -448,6 +450,41 @@ public class WysiwygEditor extends JTextPane implements Editor {
       dialog.pack();
       dialog.setLocationRelativeTo(App.component());
       dialog.setVisible(true);
+    };
+  }
+  
+  private MouseListener followHyperlinks() {
+    return new MouseAdapter() {
+      public void mouseReleased(MouseEvent event) {
+        try {
+          if (!event.isControlDown()) {
+            return;
+          }
+          var document = (HTMLDocument) getDocument();
+          var element = document.getCharacterElement(getCaretPosition());
+          if (element == null) {
+            return;
+          }
+          var attributes = element.getAttributes();
+          var a = (SimpleAttributeSet) attributes.getAttribute(HTML.Tag.A);
+          if (a == null) {
+            return;
+          }
+          var href = (String) a.getAttribute(HTML.Attribute.HREF);
+          if (href == null) {
+            return;
+          }
+          if (href.startsWith("http://") || href.startsWith("https://")) {
+            Desktop.getDesktop().browse(new URI(href));
+          } else if (href.startsWith("./")) {
+            var fullName = href.substring(2);
+            var note = Note.ofFullName(fullName);
+            System.out.println("TODO");
+          }
+        } catch (Exception exc) {
+          throw new RuntimeException(exc);
+        }
+      }
     };
   }
 }
