@@ -69,7 +69,10 @@ public class Notebook {
             JOptionPane.PLAIN_MESSAGE,
             null,
             null, 
-            note.getFullName()) ;
+            note.getFullName());
+      if (fullName == null) {
+        return;
+      }
       note = Note.ofFullName(fullName);
       while (Files.exists(note.getPath())) {
         note = Note.ofFullName(note.getFullName() + "_rename");
