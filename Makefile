@@ -4,17 +4,17 @@ default: run
 .PHONY: clean
 clean:
 	@find . -type f -name "*.class" -exec rm {} \;
-	@find . -type f -name "*.jar" -exec rm {} \;
+	@rm -f twiki.jar
 
 .PHONY: compile
 compile: clean
-	@javac -Xlint:unchecked App.java
+	@javac -Xlint:unchecked -cp ".:lib/*" App.java
 
 .PHONY: run
 run: compile
-	@java App
+	@java -cp ".:lib/*" App
 
 .PHONY: jar
 jar: compile
-	@jar cfe twiki.jar App *.class style.css icon.png
+	@jar --create --file twiki.jar --manifest MANIFEST.mf *.class style.css icon.png lib/
 	@chmod +x twiki.jar

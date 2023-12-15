@@ -4,11 +4,13 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 
+import com.formdev.flatlaf.*;
+
 public class App extends JFrame {
   private static App instance;
 
   public static void main(String[] args) throws Exception {
-    //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    UIManager.setLookAndFeel(new FlatLightLaf());
     SwingUtilities.invokeLater(() -> {
       instance = new App();
     });
