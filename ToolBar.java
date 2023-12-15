@@ -17,7 +17,6 @@ public class ToolBar extends JToolBar {
     searchField.addActionListener(search());
     add(Box.createHorizontalGlue());
     add(searchField);
-    setBorder(new EmptyBorder(5, 5, 5, 5));
     setFloatable(false);
     setVisible(false);
     addMouseListener(hideBar());
