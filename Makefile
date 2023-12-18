@@ -24,5 +24,9 @@ manifest:
 
 .PHONY: jar
 jar: clean compile manifest
-	@jar --create --file twiki.jar --manifest MANIFEST.mf *.class style.css icon.png lib/
+	@jar --create --file twiki.jar --manifest MANIFEST.mf *.class style.css icon.png
 	@chmod +x twiki.jar
+
+.PHONY: zip
+zip: jar
+	@zip twiki.zip twiki.jar lib/*
