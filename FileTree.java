@@ -16,6 +16,7 @@ public class FileTree extends JTree {
     refresh();
     expandRow(0);
     setRootVisible(false);
+    setShowsRootHandles(true);
     addMouseListener(mouseListenerOnSelected());
     addTreeSelectionListener(treeSelectionListenerOnSelected());
     registerKeyboardAction(showNewDialog(), KeyStrokes.CTRL_N, JComponent.WHEN_FOCUSED);
