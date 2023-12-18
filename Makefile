@@ -6,6 +6,7 @@ clean:
 	@find . -type f -name "*.class" -exec rm {} \;
 	@rm -f MANIFEST.mf
 	@rm -f twiki.jar
+	@rm -f twiki.zip
 
 .PHONY: compile
 compile:
