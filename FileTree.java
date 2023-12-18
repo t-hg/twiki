@@ -53,6 +53,7 @@ public class FileTree extends JTree {
       var fullName = getFullName(path);
       var note = Note.ofFullName(fullName);
       App.instance().getFileTabs().openNote(note);
+      grabFocus();
     };
   }
 
