@@ -58,7 +58,7 @@ public class FileTabs extends JTabbedPane {
     return new MouseAdapter() {
       public void mouseReleased(MouseEvent event) {
         if (SwingUtilities.isMiddleMouseButton(event)) {
-          var index = getSelectedIndex();
+          var index = indexAtLocation(event.getX(), event.getY());
           if (index < 0) {
             return;
           }
