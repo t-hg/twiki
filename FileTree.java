@@ -18,7 +18,6 @@ public class FileTree extends JTree {
     setRootVisible(false);
     setShowsRootHandles(true);
     addMouseListener(mouseListenerOnSelected());
-    addTreeSelectionListener(treeSelectionListenerOnSelected());
     registerKeyboardAction(showNewDialog(), KeyStrokes.CTRL_N, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(showDeleteDialog(), KeyStrokes.DEL, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(showRenameDialog(), KeyStrokes.F2, JComponent.WHEN_FOCUSED);
@@ -45,20 +44,14 @@ public class FileTree extends JTree {
             expandPath(path);
           }
         }
+        var fullName = getFullName(path);
+        var note = Note.ofFullName(fullName);
+        App.instance().getFileTabs().openNote(note);
+        grabFocus();
       }
     };
   }
   
-  private TreeSelectionListener treeSelectionListenerOnSelected() {
-    return event -> {
-      var path = event.getPath();
-      var fullName = getFullName(path);
-      var note = Note.ofFullName(fullName);
-      App.instance().getFileTabs().openNote(note);
-      grabFocus();
-    };
-  }
-
   private ActionListener triggerClearSelection() {
     return event -> clearSelection();
   }
