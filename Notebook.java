@@ -82,11 +82,11 @@ public class Notebook {
       if (fullName == null) {
         return;
       }
-      note = Note.ofFullName(fullName);
-      while (Files.exists(note.getPath())) {
-        note = Note.ofFullName(note.getFullName() + "_rename");
+      var dest = Note.ofFullName(fullName);
+      while (Files.exists(dest.getPath())) {
+        dest = Note.ofFullName(note.getFullName() + "_rename");
       }
-      Files.createFile(note.getPath());
+      Files.move(note.getPath(), dest.getPath());
     } catch (Exception exc) {
       throw new RuntimeException(exc);
     }
