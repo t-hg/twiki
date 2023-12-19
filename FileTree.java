@@ -38,16 +38,11 @@ public class FileTree extends JTree {
         if (path == null) return;
         setSelectionPath(path);
         if (event.getClickCount() > 1) {
-          if (isExpanded(path)) {
-            collapsePath(path);
-          } else {
-            expandPath(path);
-          }
+          var fullName = getFullName(path);
+          var note = Note.ofFullName(fullName);
+          App.instance().getFileTabs().openNote(note);
+          grabFocus();
         }
-        var fullName = getFullName(path);
-        var note = Note.ofFullName(fullName);
-        App.instance().getFileTabs().openNote(note);
-        grabFocus();
       }
     };
   }
