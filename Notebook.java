@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.io.*;
 import java.nio.*;
 import java.nio.file.*;
@@ -7,7 +8,15 @@ import javax.swing.*;
 
 public class Notebook {
 
-  public List<Note> listNotes() {
+  public void openInFileBrowser() {
+    try {
+      Desktop.getDesktop().open(Paths.get(Config.notes()).toFile());
+    } catch (Exception exc) {
+      throw new RuntimeException(exc);
+    }
+  }
+
+  public java.util.List<Note> listNotes() {
     try {
       return Files.list(Paths.get(Config.notes()))
                   .sorted(Comparator.comparing(Path::toString))

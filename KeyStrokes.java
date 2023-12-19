@@ -36,6 +36,7 @@ public class KeyStrokes {
   public static KeyStroke ENTER       = plain(VK_ENTER);
   public static KeyStroke ESC         = plain(VK_ESCAPE);
   public static KeyStroke F2          = plain(VK_F2);
+  public static KeyStroke F3          = plain(VK_F3);
   public static KeyStroke F12         = plain(VK_F12);
   public static KeyStroke TAB         = plain(VK_TAB);
 

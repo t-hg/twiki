@@ -22,6 +22,7 @@ public class FileTree extends JTree {
     registerKeyboardAction(showNewDialog(), KeyStrokes.CTRL_N, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(showDeleteDialog(), KeyStrokes.DEL, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(showRenameDialog(), KeyStrokes.F2, JComponent.WHEN_FOCUSED);
+    registerKeyboardAction(openInFileBrowser(), KeyStrokes.F3, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(triggerRefresh(), KeyStrokes.CTRL_R, JComponent.WHEN_FOCUSED);
     registerKeyboardAction(triggerClearSelection(), KeyStrokes.ESC, JComponent.WHEN_FOCUSED);
     setToggleClickCount(-1);
@@ -176,6 +177,12 @@ public class FileTree extends JTree {
       var note = Note.ofFullName(fullName);
       notebook.renameNote(note);
       refresh();
+    };
+  }
+
+  private ActionListener openInFileBrowser() {
+    return event -> {
+      notebook.openInFileBrowser();
     };
   }
 }
