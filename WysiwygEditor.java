@@ -15,6 +15,7 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
+import javax.swing.text.html.HTMLEditorKit.HTMLTextAction;
 import javax.swing.undo.*;
 
 import static javax.swing.JComponent.WHEN_FOCUSED;
@@ -53,33 +54,54 @@ public class WysiwygEditor extends JTextPane implements Editor {
       ((HTMLDocument) getDocument()).setBase(Paths.get(Config.notes()).toFile().toURI().toURL());
 
       addMouseListener(followHyperlinks());
+    
 
-      registerKeyboardAction(getActionMap().get("font-bold"), KeyStrokes.CTRL_B, WHEN_FOCUSED);
-      registerKeyboardAction(getActionMap().get("font-italic"), KeyStrokes.CTRL_I, WHEN_FOCUSED);
-      registerKeyboardAction(getActionMap().get("font-underline"), KeyStrokes.CTRL_U, WHEN_FOCUSED);
+      getInputMap().put(KeyStrokes.CTRL_B, new StyledEditorKit.BoldAction());
+      getInputMap().put(KeyStrokes.CTRL_I, new StyledEditorKit.ItalicAction());
+      getInputMap().put(KeyStrokes.CTRL_U, new StyledEditorKit.UnderlineAction());
+      getInputMap().put(KeyStrokes.CTRL_1, new HeadingAction(1));
+      getInputMap().put(KeyStrokes.CTRL_2, new HeadingAction(2));
+      getInputMap().put(KeyStrokes.CTRL_3, new HeadingAction(3));
+      getInputMap().put(KeyStrokes.CTRL_4, new HeadingAction(4));
+      getInputMap().put(KeyStrokes.CTRL_5, new HeadingAction(5));
+      getInputMap().put(KeyStrokes.CTRL_6, new HeadingAction(6));
+      getInputMap().put(KeyStrokes.SHIFT_ENTER, new LineBreakAction());
+      getInputMap().put(
+          KeyStrokes.CTRL_SHIFT_C, 
+          new HTMLEditorKit.InsertHTMLTextAction(
+            "InsertCodeBlockAction", 
+            "<pre></pre>", 
+            HTML.Tag.BODY, 
+            HTML.Tag.PRE));
+      getInputMap().put(
+          KeyStrokes.CTRL_SHIFT_I,
+          new HTMLEditorKit.InsertHTMLTextAction(
+            "InsertInfoBlockAction", 
+            "<div class=\"info\"></div>", 
+            HTML.Tag.BODY, 
+            HTML.Tag.DIV));
+      getInputMap().put(
+          KeyStrokes.CTRL_SHIFT_W,
+          new HTMLEditorKit.InsertHTMLTextAction(
+            "InsertWarnBlockAction", 
+            "<div class=\"warn\"></div>", 
+            HTML.Tag.BODY, 
+            HTML.Tag.DIV));
+
       registerKeyboardAction(pasteFromClipboard(), KeyStrokes.CTRL_V, WHEN_FOCUSED);
-      registerKeyboardAction(continueNext(), KeyStrokes.ENTER, WHEN_FOCUSED);
-      registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, WHEN_FOCUSED);
-      registerKeyboardAction(insertCodeBlock(), KeyStrokes.CTRL_SHIFT_C, WHEN_FOCUSED);
-      registerKeyboardAction(insertInfoBlock(), KeyStrokes.CTRL_SHIFT_I, WHEN_FOCUSED);
-      registerKeyboardAction(insertWarnBlock(), KeyStrokes.CTRL_SHIFT_W, WHEN_FOCUSED);
+      //registerKeyboardAction(continueNext(), KeyStrokes.ENTER, WHEN_FOCUSED);
+      //registerKeyboardAction(insertBreak(), KeyStrokes.SHIFT_ENTER, WHEN_FOCUSED);
       registerKeyboardAction(insertUnorderedList(), KeyStrokes.CTRL_SHIFT_U, WHEN_FOCUSED);
       registerKeyboardAction(insertOrderedList(), KeyStrokes.CTRL_SHIFT_O, WHEN_FOCUSED);
       registerKeyboardAction(insertTable(), KeyStrokes.CTRL_SHIFT_T, WHEN_FOCUSED);
       registerKeyboardAction(indent(), KeyStrokes.TAB, WHEN_FOCUSED);
       registerKeyboardAction(unindent(), KeyStrokes.SHIFT_TAB, WHEN_FOCUSED);
       registerKeyboardAction(toParagraph(), KeyStrokes.CTRL_0, WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(1), KeyStrokes.CTRL_1, WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(2), KeyStrokes.CTRL_2, WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(3), KeyStrokes.CTRL_3, WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(4), KeyStrokes.CTRL_4, WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(5), KeyStrokes.CTRL_5, WHEN_FOCUSED);
-      registerKeyboardAction(toHeading(6), KeyStrokes.CTRL_6, WHEN_FOCUSED);
       registerKeyboardAction(save(), KeyStrokes.CTRL_S, WHEN_FOCUSED);
       registerKeyboardAction(refresh(), KeyStrokes.CTRL_R, WHEN_FOCUSED);
       registerKeyboardAction(undo(undoManager), KeyStrokes.CTRL_Z, WHEN_FOCUSED);
       registerKeyboardAction(redo(undoManager), KeyStrokes.CTRL_Y, WHEN_FOCUSED);
-      registerKeyboardAction(backspace(), KeyStrokes.BACKSPACE, WHEN_FOCUSED);
+      //registerKeyboardAction(backspace(), KeyStrokes.BACKSPACE, WHEN_FOCUSED);
       registerKeyboardAction(debug(), KeyStrokes.F12, WHEN_FOCUSED);
     } catch (Exception exc) {
       throw new RuntimeException(exc);
@@ -486,5 +508,50 @@ public class WysiwygEditor extends JTextPane implements Editor {
         }
       }
     };
+  }
+
+  class HeadingAction extends HTMLTextAction {
+    private int level;
+
+    public HeadingAction(int level) {
+      super("HeadingAction");
+      this.level = level;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent event) {
+      var editor = getEditor(event);
+      var attrs = new SimpleAttributeSet();
+      var tag = switch(level) {
+        case 1 -> HTML.Tag.H1;
+        case 2 -> HTML.Tag.H2;
+        case 3 -> HTML.Tag.H3;
+        case 4 -> HTML.Tag.H4;
+        case 5 -> HTML.Tag.H5;
+        case 6 -> HTML.Tag.H6;
+        default -> throw new RuntimeException("level " + level);
+      };
+      attrs.addAttribute(AttributeSet.NameAttribute, tag);
+      setParagraphAttributes(editor, attrs, true);
+    }
+  }
+
+  class LineBreakAction extends HTMLTextAction { 
+    public LineBreakAction() {
+      super("LineBreakAction");
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent event) {
+      try {
+        var editor = getEditor(event);
+        var editorKit = getHTMLEditorKit(editor);
+        var document = getHTMLDocument(editor);
+        var position = editor.getCaretPosition();
+        editorKit.insertHTML(document, position, "<br>", 0, 0, HTML.Tag.BR);
+      } catch (Exception exc) {
+        throw new RuntimeException();
+      }
+    }
   }
 }
