@@ -64,7 +64,8 @@ public class WysiwygEditor extends JTextPane implements Editor {
       getInputMap().put(KeyStrokes.CTRL_4, new HeadingAction(4));
       getInputMap().put(KeyStrokes.CTRL_5, new HeadingAction(5));
       getInputMap().put(KeyStrokes.CTRL_6, new HeadingAction(6));
-      getInputMap().put(KeyStrokes.SHIFT_ENTER, new LineBreakAction());
+      getInputMap().put(KeyStrokes.ENTER, new EnterAction());
+      getInputMap().put(KeyStrokes.SHIFT_ENTER, new EnterAction());
       getInputMap().put(
           KeyStrokes.CTRL_SHIFT_C, 
           new HTMLEditorKit.InsertHTMLTextAction(
@@ -245,13 +246,21 @@ public class WysiwygEditor extends JTextPane implements Editor {
     }
   }
 
-  class LineBreakAction extends HTMLTextAction { 
-    public LineBreakAction() {
-      super("LineBreakAction");
+  class EnterAction extends HTMLTextAction { 
+    public EnterAction() {
+      super("EnterAction");
     }
 
     @Override
     public void actionPerformed(ActionEvent event) {
+      var shiftDown = (event.getModifiers() & ActionEvent.SHIFT_MASK) > 0;
+      if (shiftDown) {
+        insertLineBreak(event);
+        return;
+      }
+    }
+
+    private void insertLineBreak(ActionEvent event) {
       try {
         var editor = getEditor(event);
         var editorKit = getHTMLEditorKit(editor);
@@ -261,6 +270,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       } catch (Exception exc) {
         throw new RuntimeException();
       }
+
     }
   }
 
