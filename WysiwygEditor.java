@@ -207,6 +207,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
             var fullName = href.substring(2);
             var note = Note.ofFullName(fullName);
             App.instance().getFileTree().selectNote(note);
+            App.instance().getFileTabs().openNote(note);
           }
         } catch (Exception exc) {
           throw new RuntimeException(exc);
