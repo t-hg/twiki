@@ -39,12 +39,6 @@ public class WysiwygEditor extends JTextPane implements Editor {
       editorKit.setStyleSheet(Config.stylesheet());
       setEditorKit(editorKit);
 
-      //System.out.println(
-      //    Arrays.stream(getActionMap().allKeys())
-      //      .map(Object::toString)
-      //      .sorted()
-      //      .collect(Collectors.joining(System.lineSeparator())));
-
       var undoManager = new UndoManager();
       getDocument().addUndoableEditListener(undoManager);
       
@@ -265,12 +259,13 @@ public class WysiwygEditor extends JTextPane implements Editor {
         var editor = getEditor(event);
         var editorKit = getHTMLEditorKit(editor);
         var document = getHTMLDocument(editor);
-        var position = editor.getCaretPosition();
-        editorKit.insertHTML(document, position, "<br>", 0, 0, HTML.Tag.BR);
+        document.replace(editor.getSelectionStart(), editor.getSelectionEnd() - editor.getSelectionStart(), "", null);
+        // Workaround for disappearing caret
+        editorKit.insertHTML(document, editor.getCaretPosition(), "<br/>&nbsp;", 0, 0, HTML.Tag.BR);
+        editor.select(editor.getCaretPosition() - 1, editor.getCaretPosition());
       } catch (Exception exc) {
-        throw new RuntimeException();
+        throw new RuntimeException(exc);
       }
-
     }
   }
 
