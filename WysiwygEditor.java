@@ -52,6 +52,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       getInputMap().put(KeyStrokes.CTRL_B, new StyledEditorKit.BoldAction());
       getInputMap().put(KeyStrokes.CTRL_I, new StyledEditorKit.ItalicAction());
       getInputMap().put(KeyStrokes.CTRL_U, new StyledEditorKit.UnderlineAction());
+      getInputMap().put(KeyStrokes.CTRL_0, new HeadingAction(0));
       getInputMap().put(KeyStrokes.CTRL_1, new HeadingAction(1));
       getInputMap().put(KeyStrokes.CTRL_2, new HeadingAction(2));
       getInputMap().put(KeyStrokes.CTRL_3, new HeadingAction(3));
@@ -214,6 +215,10 @@ public class WysiwygEditor extends JTextPane implements Editor {
     };
   }
 
+  private boolean isTag(Element element, HTML.Tag tag) {
+    return element.getAttributes().getAttribute(AttributeSet.NameAttribute) == tag;
+  }
+
   class HeadingAction extends HTMLTextAction {
     private int level;
 
@@ -227,6 +232,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
       var editor = getEditor(event);
       var attrs = new SimpleAttributeSet();
       var tag = switch(level) {
+        case 0 -> HTML.Tag.P;
         case 1 -> HTML.Tag.H1;
         case 2 -> HTML.Tag.H2;
         case 3 -> HTML.Tag.H3;
@@ -252,6 +258,7 @@ public class WysiwygEditor extends JTextPane implements Editor {
         insertLineBreak(event);
         return;
       }
+      insertParagraph(event);
     }
 
     private void insertLineBreak(ActionEvent event) {
@@ -263,6 +270,29 @@ public class WysiwygEditor extends JTextPane implements Editor {
         // Workaround for disappearing caret
         editorKit.insertHTML(document, editor.getCaretPosition(), "<br/>&nbsp;", 0, 0, HTML.Tag.BR);
         editor.select(editor.getCaretPosition() - 1, editor.getCaretPosition());
+      } catch (Exception exc) {
+        throw new RuntimeException(exc);
+      }
+    }
+
+    private void insertParagraph(ActionEvent event) {
+      try {
+        var editor = getEditor(event);
+        var document = getHTMLDocument(editor);
+        var element = document.getParagraphElement(editor.getCaretPosition());
+        var parentElement = element.getParentElement();
+
+        if (isTag(parentElement, HTML.Tag.DIV)) {
+          document.insertAfterEnd(parentElement, "<p></p>");
+          editor.setCaretPosition(editor.getCaretPosition() + 1);
+          return;
+        }
+        
+        new HTMLEditorKit.InsertHTMLTextAction(
+            "InsertParagraphAction", 
+            "<p></p>", 
+            HTML.Tag.BODY, 
+            HTML.Tag.P).actionPerformed(event);
       } catch (Exception exc) {
         throw new RuntimeException(exc);
       }
