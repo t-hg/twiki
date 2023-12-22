@@ -216,8 +216,13 @@ public class WysiwygEditor extends JTextPane implements Editor {
     };
   }
 
-  private boolean isTag(Element element, HTML.Tag tag) {
-    return element.getAttributes().getAttribute(AttributeSet.NameAttribute) == tag;
+  private boolean isTag(Element element, HTML.Tag... tags) {
+    for (var tag : tags) {
+      if (element.getAttributes().getAttribute(AttributeSet.NameAttribute) == tag) {
+        return true;
+      }
+    }
+    return false;
   }
 
   class HeadingAction extends HTMLTextAction {
@@ -283,9 +288,9 @@ public class WysiwygEditor extends JTextPane implements Editor {
         var element = document.getParagraphElement(editor.getCaretPosition());
         var parentElement = element.getParentElement();
 
-        if (isTag(parentElement, HTML.Tag.DIV)) {
+        if (isTag(parentElement, HTML.Tag.DIV, HTML.Tag.PRE)) {
           document.insertAfterEnd(parentElement, "<p></p>");
-          editor.setCaretPosition(editor.getCaretPosition() + 1);
+          editor.setCaretPosition(parentElement.getEndOffset());
           return;
         }
         
